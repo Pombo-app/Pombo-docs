@@ -1,6 +1,12 @@
 // @ts-check
 // Explicit sidebar for docs.pombo.cc
-// See: https://docusaurus.io/docs/sidebar
+//
+// Organised by subject, not by document genre. "The protocol" is the trunk
+// and reads in dependency order: what Pombo composes, the streams a channel
+// is made of, who you are on the wire, who gets in, how it is encrypted,
+// where it is kept, who moderates, how you are notified. Tasks live in
+// "Use Pombo" so an evaluator can skip them, and Reference holds only what
+// people look up rather than read.
 
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
@@ -8,75 +14,64 @@ const sidebars = {
     'welcome',
     {
       type: 'category',
-      label: 'Getting Started',
-      collapsed: false,
-      items: [
-        'getting-started/install',
-        'getting-started/identity',
-        'getting-started/first-steps',
-      ],
-    },
-    {
-      type: 'category',
-      label: 'Guides',
+      label: 'Use Pombo',
       collapsed: true,
       items: [
-        'guides/direct-messages',
-        'guides/managing-channels',
-        'guides/file-sharing',
-        'guides/backup-and-recovery',
+        'use/install',
+        'use/account',
+        'use/first-steps',
+        'use/channels',
+        'use/direct-messages',
+        'use/files',
+        'use/backup',
+        'use/faq',
+        'use/troubleshooting',
       ],
     },
     {
       type: 'category',
-      label: 'How Pombo Works',
-      collapsed: false,
+      label: 'The protocol',
+      collapsed: true,
       items: [
-        {
-          type: 'category',
-          label: 'Architecture',
-          collapsed: false,
-          items: [
-            'concepts/client',
-            'concepts/channel-anatomy',
-            'concepts/storage-and-sync',
-            'concepts/notifications',
-          ],
-        },
-        'concepts/channel-access',
-        'concepts/ownership-and-moderation',
-        'concepts/encryption',
-        'concepts/privacy-model',
+        'protocol/overview',
+        'protocol/streams',
+        'protocol/identity',
+        'protocol/access',
+        'protocol/contract',
+        'protocol/encryption',
+        'protocol/storage-and-sync',
+        'protocol/moderation',
+        'protocol/notifications',
       ],
     },
     {
       type: 'category',
-      label: 'Security & Privacy',
+      label: 'Security and privacy',
       collapsed: true,
       items: [
         'security/privacy-at-a-glance',
-        'security/client-security',
         'security/threat-model',
-        {type: 'link', label: 'Privacy policy', href: '/legal/privacy-policy'},
+        'security/client-security',
+        { type: 'link', label: 'Privacy policy', href: '/legal/privacy-policy' },
       ],
     },
     {
       type: 'category',
-      label: 'Node Operators',
+      label: 'Run infrastructure',
       collapsed: true,
       items: [
-        'operators/run-a-relay',
         'operators/run-a-storage-node',
+        'operators/run-a-relay',
       ],
     },
     {
       type: 'category',
-      label: 'Help',
+      label: 'Reference',
       collapsed: true,
       items: [
-        'help/faq',
-        'help/troubleshooting',
-        'help/glossary',
+        'reference/channel-types',
+        'reference/limits',
+        'reference/glossary',
       ],
     },
   ],

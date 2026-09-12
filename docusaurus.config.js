@@ -51,13 +51,33 @@ const config = {
     [
       '@docusaurus/plugin-client-redirects',
       {
-        // Concept pages were reorganized; keep the published URLs alive.
+        // The tree is organized by subject: tasks in Use Pombo, the machinery
+        // in The protocol, lookups in Reference. Every URL ever published
+        // must still land somewhere.
         redirects: [
-          {from: '/concepts/architecture', to: '/concepts/client'},
-          {from: '/concepts/channels-and-ownership', to: '/concepts/channel-access'},
-          {from: '/concepts/gated-and-paid-channels', to: '/concepts/channel-access'},
-          {from: '/concepts/storage-and-persistence', to: '/concepts/storage-and-sync'},
-          {from: '/guides/notifications', to: '/concepts/notifications'},
+          {from: '/getting-started/install', to: '/use/install'},
+          {from: '/getting-started/identity', to: '/use/account'},
+          {from: '/getting-started/first-steps', to: '/use/first-steps'},
+          {from: '/guides/managing-channels', to: '/use/channels'},
+          {from: '/guides/direct-messages', to: '/use/direct-messages'},
+          {from: '/guides/file-sharing', to: '/use/files'},
+          {from: '/guides/backup-and-recovery', to: '/use/backup'},
+          {from: '/help/faq', to: '/use/faq'},
+          {from: '/help/troubleshooting', to: '/use/troubleshooting'},
+          {from: '/help/glossary', to: '/reference/glossary'},
+          {from: '/concepts/client', to: '/protocol/overview'},
+          {from: '/concepts/architecture', to: '/protocol/overview'},
+          {from: '/concepts/channel-anatomy', to: '/protocol/streams'},
+          {from: '/concepts/channel-access', to: '/protocol/access'},
+          {from: '/concepts/channels-and-ownership', to: '/protocol/access'},
+          {from: '/concepts/gated-and-paid-channels', to: '/protocol/access'},
+          {from: '/concepts/ownership-and-moderation', to: '/protocol/moderation'},
+          {from: '/concepts/encryption', to: '/protocol/encryption'},
+          {from: '/concepts/privacy-model', to: '/protocol/identity'},
+          {from: '/concepts/storage-and-sync', to: '/protocol/storage-and-sync'},
+          {from: '/concepts/storage-and-persistence', to: '/protocol/storage-and-sync'},
+          {from: '/concepts/notifications', to: '/protocol/notifications'},
+          {from: '/guides/notifications', to: '/protocol/notifications'},
         ],
       },
     ],

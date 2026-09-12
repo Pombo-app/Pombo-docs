@@ -1,62 +1,59 @@
 ---
 id: run-a-storage-node
 title: Run a storage node
-description: Operate a Streamr storage node that Pombo channels can use for message persistence.
+description: Operate a Pombo storage node that channel owners can point their channels at.
 ---
 
 # Run a storage node
 
-Storage nodes archive stream history so channels and DM inboxes work asynchronously. Pombo channel owners can point their channels at **any Streamr storage node** — including yours. This is a heavier commitment than a [push relay](run-a-relay.md): it's a database-backed, always-on service.
+Storage nodes archive stream history so channels and DM inboxes work when people are offline. A channel owner can point a channel at any provider, including yours. This is a heavier commitment than a [push relay](run-a-relay.md): a database-backed, always-on service whose uptime the channels assigned to it depend on.
 
-:::info
-A storage node is standard Streamr infrastructure, not Pombo-specific software. The authoritative reference is the [Streamr documentation](https://docs.streamr.network); this page covers the setup profile that makes a node usable from Pombo.
-:::
+The node software is [pombo-storage-node](https://github.com/Pombo-app/pombo-storage-node), a build of the Streamr storage node that validates writes at ingest, serves private history only to signed requests, stamps each message with a receipt time, deletes on request and enforces retention on its own. It stays a drop-in Streamr node otherwise. What each of those does for a channel is in [Storage and sync](../protocol/storage-and-sync.md).
 
-## Components
+## What you need
 
-A production storage node stack:
+- A machine with Docker, 4 GB of RAM and a few tens of GB of disk, growing with the channels you host.
+- A public IP with ports 80 and 443 (HTTPS endpoint) and 32200 (Streamr overlay) reachable from the internet.
+- A hostname you control, with a DNS A record pointing at the machine. The web app runs in a browser and reads only from an `https://` endpoint with a valid certificate on a real hostname. An IP address or plain HTTP will not work.
+- A little POL on the node's address, for the one transaction that registers it.
 
-- **Streamr node** with the storage plugin (Node.js), exposing its HTTP API locally (default port 8002)
-- **Apache Cassandra 4.1.x** (on Java 11) as the message store
-- **A reverse proxy (nginx or Caddy) terminating TLS** in front of the node's HTTP API
+## Install
 
-## The web-safe profile (required for Pombo)
-
-These requirements are set by the strictest Pombo client — the web app, which runs in a browser and is bound by browser rules about what it may fetch. A node that meets them works for every client, the Android app included. Your node's public endpoint **must** be:
-
-- **HTTPS** with a valid certificate,
-- on a **real hostname** — not an IP literal, not `localhost`,
-- publicly reachable,
-- answering with **CORS headers**: `Access-Control-Allow-Origin: https://app.pombo.cc` (plus `Vary: Origin`), configured on the reverse proxy.
-
-An `http://` endpoint or a bare IP will simply never be contacted by the web client, and without the CORS header the browser blocks every request even when everything else is right — the most common "it should work but doesn't" case (the Android app is not subject to CORS, so a node failing only that check still appears to work from Android — easy to miss when testing). Register the HTTPS URL as the node's metadata so clients can discover it on-chain.
-
-## Setup outline
-
-1. **Cassandra first.** Install Cassandra 4.1.x and create the keyspace and tables the storage plugin expects — the plugin does **not** auto-create its schema. The schema (keyspace plus `bucket` and `stream_data` tables) is documented in the Streamr storage plugin docs.
-2. **Streamr node.** Install and configure the node with the storage plugin enabled, pointed at your Cassandra, with an Ethereum identity (private key) for the node.
-3. **TLS proxy.** Put nginx/Caddy with a certificate in front of port 8002. Never expose 8002 itself publicly.
-4. **Firewall.** Open only: SSH, 80/443 (proxy), and the Streamr node's P2P WebSocket port (32200 by default — check your node config). Cassandra's ports (7000, 9042, 7199) must never be publicly reachable.
-5. **Register on-chain** so clients can discover your endpoint, and verify:
+One command on a bare Debian, Ubuntu or RHEL-family machine:
 
 ```bash
-npx -p @streamr/cli-tools streamr storage-node register "https://your-node.example" \
-  --private-key <nodePrivateKey> --env polygon
-
-npx -p @streamr/cli-tools streamr storage-node show <yourNodeAddress> \
-  --private-key <nodePrivateKey> --env polygon
+bash <(curl -fsSL https://raw.githubusercontent.com/Pombo-app/pombo-storage-node/pombo/103.3.1/bootstrap.sh)
 ```
 
-A quick self-check from the outside: the certificate is valid, and `curl -I -H "Origin: https://app.pombo.cc" https://your-node.example/...` returns the `Access-Control-Allow-Origin` header.
+The installer installs Docker, fetches the node, and asks for what only you can provide: whether to generate a key or use yours, and your hostname. It pulls the prebuilt image, pauses for you to fund the node's address with POL and open the firewall ports, registers the node on-chain, and brings up the node, its Cassandra database and a Caddy proxy that obtains the certificate.
 
-Channel owners can then select your node's address when creating a channel in Pombo.
+The same procedure by hand, for troubleshooting or a custom setup, is in the repository's [installation guide](https://github.com/Pombo-app/pombo-storage-node/blob/pombo/103.3.1/HOW_TO_INSTALL.md).
 
-## Operational realities
+When it is up, from another machine:
 
-Lessons from running Pombo's own cluster:
+```bash
+curl https://node.example.org/capabilities
+```
 
-- **Retention is not enforced automatically.** Streams declare a retention period, but expired data must be actively purged — and the bundled `delete-expired-data` job in `@streamr/node` 103.3.1 is broken, so run your own purge job and monitor disk usage.
-- **If you run replicated Cassandra, schedule repairs — and use full repairs.** Run `nodetool repair -full -pr <keyspace>` regularly (daily, staggered across nodes). Incremental repair (the default without `-full`) marks SSTables as repaired into a separate compaction pool, so tombstones never meet their data and disk space is never reclaimed. Unrepaired replicas also silently diverge — the symptom is *intermittently* missing history, because alternate reads hit alternate replicas. This is the most confusing failure mode you will meet.
-- **Pombo clients probe an optional `format=metadata` query** that vanilla nodes answer with HTTP 400 — that's fine, the client falls back automatically. Nodes patched to support it serve file-transfer verification dramatically faster, but no action is required.
-- **Back up the node's private key.** The node's identity is how streams are assigned to it; losing it orphans every stream pointed at your node.
-- Uptime matters more than specs: channels assigned to your node depend on it for history. A modest VPS with reliable disk beats a big machine that reboots weekly.
+answers with the node's name and feature list. A channel owner who enters your node's address under **Storage Provider → Custom** when creating a channel, or later in the channel's settings, gets its history stored with you.
+
+## Operating it
+
+- **Retention is automatic.** The node prunes data past each stream's retention on its own timer. There is no cron to set up.
+- **Back up the node's private key.** Its address is how streams are assigned to it; losing the key orphans every channel pointed at your node.
+- **Snapshot Cassandra before risky changes** with `nodetool snapshot`.
+- **Upgrades** are a `git pull` and a compose restart. Schema changes ship as files; the node refuses to start when a column it needs is missing and names the file to apply.
+- **Uptime matters more than specs.** A modest VPS with reliable disk beats a big machine that reboots weekly.
+
+## Running a cluster
+
+Several nodes can share one replicated Cassandra database under one provider identity, splitting the write load while any node serves any read. The installer has a cluster branch that asks the cluster size, whether this machine is the seed, and the IPs. The manual procedure, and what to check when the Cassandra ring will not form across machines, is in the repository's [cluster guide](https://github.com/Pombo-app/pombo-storage-node/blob/pombo/103.3.1/deploy/CLUSTER.md).
+
+Two things learned running Pombo's own cluster:
+
+- Ports 7000 and 9042 must be reachable between the nodes and from nowhere else. Cassandra is unauthenticated in this setup.
+- Schedule **full** repairs, `nodetool repair -full -pr`, daily and staggered across nodes. Incremental repair, the default, leaves tombstones unable to meet their data, so disk is never reclaimed, and unrepaired replicas silently diverge. The symptom is history that appears and disappears between reloads, because alternate reads hit alternate replicas.
+
+## Registering more than one URL
+
+A provider can register several HTTPS URLs at once, comma-separated at registration time, if it serves the same database from more than one hostname. Clients rotate across them and fail over when one stops answering.
