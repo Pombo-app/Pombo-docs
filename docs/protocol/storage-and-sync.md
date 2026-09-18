@@ -42,7 +42,7 @@ What providers hold is what the network carried: ciphertext for protected channe
 
 Signing a read keeps everyone else out of a private channel's history. It also gives the provider a verified record of which private channels you open and when, instead of an inference from your IP. Choosing a provider is choosing who holds that record.
 
-**A receipt timestamp.** The node stamps each message with the time it received it. That stamp is the node's, not the publisher's, which is what lets a client tell a message that genuinely arrived last year from one that merely claims to.
+**A receipt timestamp.** The node stamps each message with the time it received it. That stamp is the node's, not the publisher's, which is what lets a client tell a message that genuinely arrived last year from one that merely claims to. The client takes the stamp on trust: a provider that misstates it can make a genuine message look forward-dated and have the client drop it. What else a provider is trusted for is in the [Threat model](../security/threat-model.md).
 
 **Erasure.** The channel owner, a moderator, or a message's own author while they still hold its signing key can delete specific messages from the node before retention ends. Who can erase what is in [Moderation](moderation.md).
 
