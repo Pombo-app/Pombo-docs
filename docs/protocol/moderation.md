@@ -60,6 +60,8 @@ The owner of a contract-backed channel can appoint moderators. They manage the a
 
 Only the owner can write to the admin stream, so a moderator's actions travel as **signed deltas** on the message stream, and clients render the owner's snapshot with the unabsorbed deltas applied on top. Moderation keeps working while the owner is away, and the owner has the last word on return: **Confirm Moderator Actions** absorbs the deltas into the owner's snapshot, and dismissing a moderator dissolves whatever they left pending. What was already absorbed stays.
 
+Publishing a snapshot only broadcasts it, and a session that has just opened may have no peer to hand it to yet. The owner's client therefore reads the snapshot back from storage after publishing and republishes it when it did not land, a few times before saying so; a change made on another of the owner's devices in the meantime wins and is adopted instead.
+
 ## Discovery and curation
 
 Explore lists the channels that opted in. **Listed** is a choice at creation, channels are unlisted by default, and closed channels are never listed.
