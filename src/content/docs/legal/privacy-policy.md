@@ -79,7 +79,7 @@ safeguards; we are not a party to that relationship.
 | RPC providers | Your IP address and the addresses you query | Gate checks, ENS, transactions |
 | Google (FCM) and browser push services | Delivery of an opaque wake signal, device push token | Only if notifications are enabled |
 | A user's chosen image host, or a public IPFS gateway | Your IP address and browser information | Viewing anyone with an ENS profile picture |
-| YouTube | Standard embedded player data | Only if you play a video |
+| YouTube | Standard embedded player data | When a message with a video link is displayed |
 | Hosting providers | Web server access logs | Loading the sites |
 
 What the table cannot carry:
@@ -95,8 +95,10 @@ the network carried: encrypted content for protected channels, contract-backed
 channels and DMs, which its operator cannot read, and signed plaintext for open
 channels, which anyone can. Around the content the operator sees stream
 identifiers, sizes, and the time each message arrived, which the node records.
-History is kept for 1 to 365 days, set by the channel's owner and deleted by
-the node when the window ends.
+History is kept for 1 to 365 days, set by the channel's owner when the channel
+is created. The node removes history when the window ends, when its retention
+job next runs (about every six hours), so deletion can lag the window by up to
+that interval.
 
 Three things about you reach a storage node beyond your IP address, and we
 state them because they are the price of the protections they buy:
@@ -118,13 +120,16 @@ state them because they are the price of the protections they buy:
   sealed mode, everyone publishes under one shared key and the node cannot
   tell authors apart.
 
-A Pombo storage node also checks each message before storing it, and refuses
-forged or unauthorized writes. Our own cluster keeps no record of the history
-requests it serves beyond answering them: the signature is checked, the
-request's one-time nonce is held in memory for ten minutes to reject replays,
-and nothing is written down. Requests it refuses, writes it rejects and
-deletions it performs are recorded in the node's service log with the account
-that made them; that log is not kept beyond the life of the running node.
+A Pombo storage node checks each message's signature and permissions before
+storing it, and refuses messages that fail a definite check. If it cannot
+complete a check, for example because the blockchain cannot be reached, it
+stores the message rather than refuse it. Our own cluster keeps no record of
+the history requests it serves beyond answering them: the signature is checked,
+the request's one-time nonce is held in memory for ten minutes to reject
+replays, and nothing is written down. Writes it rejects, deletions it performs,
+and requests it refuses because the chain cannot be reached are recorded in the
+node's service log with the account that made them. Requests refused for an
+invalid or missing signature are not recorded.
 
 **The blockchain.** Creating a channel, being added to or removed from a closed
 channel, being banned from a contract-backed channel, and paying for access are
@@ -155,9 +160,12 @@ many devices. To deliver at all, the relay does store your device's push token,
 with that tag and the registration times. A push token identifies a device, not
 a person; it carries no name or account, and the relay holds nothing linking
 it to your Pombo identity or channels. It is a persistent identifier, so we
-name it. Turning notifications off removes it. On Android, the Firebase
-Messaging component also sends an installation identifier to Google; that is a
-property of the platform's push service.
+name it. Turning notifications off on Android removes the device's token from
+the app and from Firebase. On the web, it stops the device's push subscription.
+Neither client tells the relay to remove the registration: the relay keeps it
+until a delivery to it fails, or until 180 days pass without a refresh.
+On Android, the Firebase Messaging component also sends an installation
+identifier to Google; that is a property of the platform's push service.
 
 **Profile pictures set by other users.** If someone has an ENS profile picture,
 your device loads it from wherever their record points: a server of their
@@ -169,8 +177,10 @@ made it. **Settings → Content → ENS Avatars** turns the fetch off entirely,
 everywhere an avatar is drawn, and shows a locally generated image instead. It
 is on by default.
 
-**Embedded video** is loaded from YouTube in privacy-enhanced mode, and nothing
-is loaded until you press play.
+**Embedded video** is loaded from YouTube's privacy-enhanced domain
+(youtube-nocookie.com) when a message containing a video link is displayed. On
+Android, a preview image is fetched from YouTube's image server at that point;
+the video player itself loads only when you tap the preview.
 
 **The websites** are served by GitHub Pages, which keeps ordinary access logs,
 including IP addresses, under its own privacy statement.
@@ -197,8 +207,9 @@ Three places where the project holds data, and they are the only ones:
   running a usable service.
 - **The push relay**: the device push tokens described in section 3, for as
   long as notifications stay enabled, kept only to deliver the notifications
-  you asked for, on the basis of your consent. Turning notifications off
-  withdraws it and deletes the token.
+  you asked for, on the basis of your consent. When notifications are turned
+  off, the app stops refreshing the registration, and the relay removes it when
+  a delivery fails or after 180 days without a refresh.
 - **This mailbox**: writing to the address in section 9 means we hold your
   message and the address you sent it from, for as long as it takes to answer
   and keep a record of having done so, on our legitimate interest in answering
