@@ -1,0 +1,31 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+---
+
+<Default><slot /></Default>
+<p class="legal">
+	<a href="/legal/privacy-policy/">Privacy policy</a>
+	<span>·</span>
+	<a href="https://github.com/Pombo-app" rel="noopener">GitHub</a>
+	<span>·</span>
+	<a href="https://pombo.cc" rel="noopener">pombo.cc</a>
+</p>
+
+<style>
+	.legal {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: center;
+		gap: 0.5rem;
+		margin-top: 2rem;
+		font-size: var(--sl-text-xs);
+		color: var(--sl-color-gray-3);
+	}
+	.legal a {
+		color: var(--sl-color-gray-3);
+		text-decoration: none;
+	}
+	.legal a:hover {
+		color: var(--sl-color-white);
+	}
+</style>

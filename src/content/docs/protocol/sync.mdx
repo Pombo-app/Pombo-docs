@@ -1,0 +1,37 @@
+---
+title: Device sync
+description: How one account's devices share state through a snapshot sealed to itself.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Devices of the same account share state through a snapshot sealed to that account and stored in its own inbox. Sync needs the account's [inbox](/protocol/streams/).
+
+## Format
+
+- Partition 1 of `DM-1` holds the state; partition 2 holds images.
+- Each snapshot is sealed to the account itself, like a [direct message](/protocol/encryption/), and published under a throwaway key. Readers keep only snapshots whose proof recovers to their own account.
+- A snapshot over 150 KiB is split into chunks plus a manifest; an incomplete set is ignored.
+
+## Contents
+
+| Slice | Contents |
+| --- | --- |
+| Channels | Channels, their passwords included, with a timestamp per field; channels left |
+| Keys | Channel keys, shared keys included |
+| Sent messages | Direct messages sent, and their deletions |
+| Contacts | Block list, left conversations, trusted contacts |
+| Profile | Display name, The Graph API key |
+
+## Merging
+
+| Slice | Rule |
+| --- | --- |
+| Channels | Joined or left: on a tie, joined wins. Fields merge one by one, newest first |
+| Keys | Union, never going back; for shared keys the higher revision wins |
+| Sent messages | Union; later edits win; deletions are kept |
+| Everything else | Newest wins; an empty value never replaces a real one |
+
+<Aside title="How the official clients do it">
+They push 15 seconds after a change, when the app goes to the background, and again after 7 days; they read each push back to confirm it, and skip publishing an unchanged state. They pull when another device has published something newer. Up to 200 sent messages per conversation are kept. Content settings stay on each device.
+</Aside>

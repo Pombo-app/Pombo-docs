@@ -1,0 +1,24 @@
+---
+title: Pombo Docs
+description: How to use Pombo, how its protocol works, and how to run part of its infrastructure.
+template: splash
+hero:
+  tagline: Channels and direct messages carried peer to peer, with ownership and permissions on chain.
+  image:
+    file: ../../assets/pombo.svg
+  actions:
+    - text: Get started
+      link: /use/get-started/
+      icon: right-arrow
+    - text: How the protocol works
+      link: /protocol/overview/
+      variant: minimal
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<CardGrid>
+	<LinkCard title="Use Pombo clients" description="Install the apps, join channels, send direct messages, keep your account safe." href="/use/get-started/" />
+	<LinkCard title="Protocol" description="Streams, keys, storage and push: what happens on the network and on chain." href="/protocol/overview/" />
+	<LinkCard title="Operate" description="Run a storage node or a push relay, for your own channels or for others." href="/operators/run-a-storage-node/" />
+</CardGrid>

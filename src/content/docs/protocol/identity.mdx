@@ -1,0 +1,32 @@
+---
+title: Identity
+description: The account key, the keys the network sees, and how authorship is proven.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+An account is one secp256k1 key. What the network sees as the publisher of a message depends on the channel type.
+
+## The account key
+
+The same key is the account's Streamr identity, pays its Polygon transactions, receives its direct messages and signs every proof and signed read. Its public key is published in the account's inbox metadata; readers accept it only if it derives to the inbox owner's address.
+
+## Who publishes on the wire
+
+| Case | Publisher the network sees | How readers learn the author |
+| --- | --- | --- |
+| Open and Protected | A random key per channel | A public proof signed by the account (`POMBO_PUB_V1`); in Protected channels it is encrypted with the message |
+| Read-only `-1`, Open and Protected | The owner's account | The signature |
+| Closed, Gated, Paid: Visible | The channel's gate contract, on the account's signature (ERC-1271) | Recovered from the signature |
+| Closed, Gated, Paid: Sealed | A key shared by the channel's writers (`-1`) or by all members (`-2`, `-5`) | An authorship record inside the encrypted message, readable by members only |
+| Keys stream `-4` | The gate contract, on the account's signature | The signature |
+| Admin stream `-3` | The owner's account | The signature |
+| Direct messages | A new key for every message | A proof inside the ciphertext (`POMBO_DM_BIND_V2`) |
+
+An account therefore appears on the wire as the owner of a channel (`-3`, read-only `-1`), in Visible channels, and in key requests on `-4`.
+
+The Sealed authorship record pairs a per-session key, which signs each message (`POMBO_MSG_V1`), with the account's signature over that key (`POMBO_BIND_V1`). See [Encryption](/protocol/encryption/) for the shared keys.
+
+<Aside title="How the official clients do it">
+The web app keeps the account key in an scrypt keystore unlocked with your password; the Android app keeps it in storage backed by the Android Keystore. When resolving an address to an ENS name, both send two decoy lookups with it, in random order.
+</Aside>

@@ -1,0 +1,109 @@
+---
+title: Run a storage node
+description: Install pombo-storage-node on your own server, register it on Polygon, and keep it running.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+`pombo-storage-node` is a Streamr storage node with the checks Pombo relies on: validation at ingest, signed reads, purge and `storedAt`. Once it is registered, any channel owner can add it as a **Custom Storage Provider**. What a provider can and cannot do: [Storage](/protocol/storage/).
+
+## Requirements
+
+| | |
+| --- | --- |
+| System | Linux: Debian, Ubuntu, or the RHEL family (Fedora, Oracle, CentOS, Rocky, Alma); amd64 or arm64 |
+| Memory | 4 GB |
+| Disk | A few tens of GB, growing with the channels you store |
+| Hostname | A domain name pointing to the machine, for the HTTPS certificate |
+| POL | At least 0.02 POL in the node's own address to register it; about 1 POL is suggested |
+
+| Port | Open to | For |
+| --- | --- | --- |
+| 80/tcp, 443/tcp | Everyone | HTTPS, with a certificate from Let's Encrypt |
+| 32200/tcp | Everyone | The Streamr network; another port if 32200 is taken |
+| 51820/udp | Cluster peers | WireGuard, clusters only |
+
+The node's API listens on localhost only, behind Caddy. Cassandra is never exposed; in a cluster it listens on the WireGuard address.
+
+## Install
+
+<Steps>
+
+1. Run the installer:
+
+   ```sh
+   bash <(curl -fsSL https://raw.githubusercontent.com/Pombo-app/pombo-storage-node/pombo/103.3.1/bootstrap.sh)
+   ```
+
+   It installs Docker, downloads the deploy files into `pombo-storage-node/deploy` and starts the setup.
+
+2. Paste a node key, or let the installer generate one.
+3. Enter the hostname. The installer checks that it points to this machine.
+4. Choose whether reads of gated streams and inboxes must be signed. Yes by default.
+5. Send POL to the node's address. The installer waits for it, then registers the node on Polygon: up to three transactions, paid by the node itself.
+6. Caddy obtains the certificate and the node starts.
+
+</Steps>
+
+<Aside type="caution">
+The node key is its identity and its wallet, stored in plain text in `config/pombo-node.json`. Back it up and keep the file private.
+</Aside>
+
+Check that it answers:
+
+```sh
+curl https://your.host/capabilities
+# {"name":"pombo-storage-node","version":"…","features":["metadata","storedAt","purge","stored","signedReads"]}
+```
+
+## Configuration
+
+The installer writes `.env` and `config/pombo-node.json` in `deploy/`.
+
+| `.env` | Default | |
+| --- | --- | --- |
+| `POMBO_NODE_DOMAIN` | | The hostname |
+| `POMBO_WS_PORT` | 32200 | The Streamr port |
+| `POMBO_NODE_TAG` | the installed version | The image the node runs |
+| `CASSANDRA_HEAP`, `CASSANDRA_HEAP_NEW` | 1G, 256M | Cassandra memory |
+| `NODE_OLD_SPACE_MB` | 2048 | Node.js memory |
+
+Retention needs no setup: every 6 hours the node deletes what is older than each stream's on-chain retention.
+
+## Upgrade
+
+Pick a version from the [tags](https://github.com/Pombo-app/pombo-storage-node/tags), then, in `deploy/`:
+
+```sh
+sed -i 's/^POMBO_NODE_TAG=.*/POMBO_NODE_TAG=v103.3.1-pombo.7/' .env
+docker compose -f docker-compose.yml -f docker-compose.image.yml pull node
+docker compose -f docker-compose.yml -f docker-compose.image.yml up -d node
+```
+
+In a cluster, add `-f docker-compose.cluster.yml` to both commands.
+
+## Clusters
+
+Several machines can share one node identity and one Cassandra ring, joined over WireGuard. The installer sets them up when you answer yes to the cluster question.
+
+<Steps>
+
+1. On every machine, run the installer with the same node key. Give each machine its own hostname and a number: 0 for the first.
+2. Each installer prints its machine's WireGuard public key. Run them all up to that point, then enter every other machine's public IP and key, and the tunnel MTU (1280 works on any path). Open 51820/udp between the machines.
+3. Finish machine 0 first. It starts Cassandra, asks for every machine's URL, and registers them on Polygon, paid from the shared key.
+4. The other machines then join the ring. They need no POL and register nothing.
+
+</Steps>
+
+- By default every machine keeps a full copy. Splitting the partitions between machines is optional.
+- Retention runs on machine 0. On every machine, a maintenance container runs a repair each day and a garbage collection each week.
+
+## Operations
+
+- **Logs:** `docker compose logs -f node`. Docker keeps them without rotation unless you configure it.
+- **After restarting Cassandra** in a cluster, recreate the maintenance container, or it stops working without an error: `docker compose -f docker-compose.yml -f docker-compose.cluster.yml up -d --no-deps --force-recreate maintenance`.
+- **Backups:** keep `config/pombo-node.json` and `.env`. For the data, `docker compose exec cassandra nodetool snapshot pombo_storage`.
+
+## What the node records
+
+It logs every message it refuses at ingest, with its publisher; every purge, with its signer; and every `stored` check. Signed reads are not logged, except when the chain cannot be reached.

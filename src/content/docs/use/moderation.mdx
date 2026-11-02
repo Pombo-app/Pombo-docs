@@ -1,0 +1,68 @@
+---
+title: Moderation
+description: Pin, hide, erase and ban as a channel owner or moderator.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The owner moderates every channel. Closed, Gated and Paid channels can also have moderators: the owner appoints them in **Members**, from the member's menu, with **Moderator**.
+
+Every action works at one of three levels:
+
+- **Override:** a declaration that Pombo apps apply. The message stays in storage, and an app that ignores overrides still shows it.
+- **Erase:** storage providers that support erasing delete the message. Cannot be undone.
+- **Access:** the gate contract and a new channel key cut the account off.
+
+## The message menu
+
+Right-click or double-tap a message on the web; long-press it on Android.
+
+| Action | Who | What it does | Level |
+| --- | --- | --- | --- |
+| **Edit Message** | The author | Changes the text | Override |
+| **Delete Message** | The author | Removes it. Outside Sealed channels, Pombo also erases it from storage when it can; the dialog says whether it will | Override, and Erase when possible |
+| **Pin Message** | The owner | Keeps it at the top of the channel | Override |
+| **Hide Message** | The owner, moderators | Hides it; **Unhide Message** shows it again | Override |
+| **Erase from storage** | The owner, moderators | Deletes it from every provider that can erase | Erase |
+| **Ban User** | The owner, moderators | See below | |
+
+The owner removes their own messages with **Hide Message**. Pinning and hiding are free.
+
+## Banning
+
+**Ban User** offers three choices.
+
+| Choice | What it does | Who, and cost | Level |
+| --- | --- | --- | --- |
+| **Hide their messages** | Hides everything they wrote, before and after | Free, reversible | Override |
+| **Cut their access** | Bans them on the gate and rotates the channel key: they cannot write, and cannot read what follows | The owner; Closed, Gated and Paid only; one transaction | Access |
+| **Erase their messages from storage** | Deletes their messages and files from providers that can | The owner, with the first choice | Erase |
+
+In Open and Protected channels there is no gate, so a ban can only hide. If the key cannot rotate at once, the owner's app rotates it the next time it connects.
+
+**Moderation › Banned Members** lists bans, with **Unban**. Giving access back is one transaction.
+
+## Moderators' actions
+
+What a moderator hides or bans takes effect at once. The owner then sees **Confirm Moderator Actions** in **Moderation**: confirming is free, and keeps those actions even if the moderator is dismissed later.
+
+## Advanced
+
+**Moderation › Advanced**, for the owner of a Closed, Gated or Paid channel.
+
+| Button | Use it to | Cost |
+| --- | --- | --- |
+| **Rotate Now** | Issue a new channel key now. Anyone without access stops reading new messages. The app also rotates weekly | Free |
+| **Reset Publish Key** | Sealed channels: cut off an ex-member who keeps writing junk to storage | Two transactions |
+| **Reset Interactions Key** | Sealed channels: bring back reactions and presence when no device holds their key, or cut off an ex-member who kept it | One transaction |
+
+## Key Responder
+
+New members get the channel keys from a member's device that is online. **Key Responder** keeps one of yours answering:
+
+- **Web:** in the channel's **Notifications** tab, for the owner and moderators, while a Pombo tab is open.
+- **Android:** **Background Key Responder**, for the owner, even with the app closed.
+
+<Aside type="caution" title="Moderation state is too large">
+Pins and hides share one state with a size limit. If Pombo says it is too large, unpin some messages and try again.
+</Aside>

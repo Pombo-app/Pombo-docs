@@ -1,0 +1,81 @@
+---
+title: Run a push relay
+description: Run the relay that turns wake signals into Web Push and FCM notifications.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+The relay reads the push stream, files each device under its tag, and wakes every device under a tag when a valid wake arrives. How it works: [Push notifications](/protocol/push/).
+
+<Aside>
+Clients pin their relay: the official apps are built with the Pombo relay's address, push stream, VAPID key and Firebase project. A relay of your own serves only a client built with yours.
+</Aside>
+
+## Requirements
+
+- Node.js 20.19 or newer, and pm2.
+- Memory: the embedded Streamr node grows over a day; the pm2 configuration restarts the relay above 1.5 GB.
+- Outbound access to Polygon RPCs, the Web Push services and, for Android, Firebase Cloud Messaging.
+
+## Install
+
+<Steps>
+
+1. Clone and install:
+
+   ```sh
+   git clone https://github.com/Pombo-app/Pombo-push.git
+   cd Pombo-push
+   npm install
+   ```
+
+2. Create the keys. This writes the VAPID pair and a new relay key to `.env`, if `.env` does not exist yet:
+
+   ```sh
+   npm run generate-keys
+   ```
+
+3. Fill in the rest of `.env` (below).
+4. Start it and keep it running across reboots:
+
+   ```sh
+   pm2 start ecosystem.config.cjs
+   pm2 save
+   pm2 startup
+   ```
+
+</Steps>
+
+| Variable | Default | |
+| --- | --- | --- |
+| `RELAY_PRIVATE_KEY` | required | The relay's key. Clients check its address |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | required | Web Push |
+| `VAPID_EMAIL` | `admin@example.com` | Contact given to the push services |
+| `PUSH_STREAM_ID` | the Pombo push stream | The stream the relay reads |
+| `POW_DIFFICULTY` | 4 | Leading zero hex digits a wake must carry |
+| `FCM_SERVICE_ACCOUNT` | none | A path to, or the JSON of, a Firebase service account. Without it, Android devices register but are never woken |
+| `ADMIN_PORT` | 8000 | The admin API; `0` turns it off |
+
+The push stream's owner publishes the relay's public key in the stream's metadata (`pk`), where clients read it and check it against the address they were built with.
+
+<Aside type="danger">
+The admin API has no authentication and listens on every interface. Keep its port closed to the internet, or set `ADMIN_PORT=0`.
+</Aside>
+
+## What it keeps
+
+| | Contents | Kept until |
+| --- | --- | --- |
+| Registrations, `data/tokens.db` | Tag, Web Push subscription or FCM token, created and updated times | The push service reports the endpoint gone, or an admin deletes it |
+| Event log, same database | Registrations, wakes and failures, with their tags | Never pruned |
+| pm2 logs | Each registration and wake, with its tag | Not rotated by the relay |
+
+Clients refresh their registration every 6 hours and never unregister. `node admin-cli.js clean-expired --force` deletes registrations not refreshed for 30 days.
+
+Back up `.env` and `data/tokens.db`.
+
+## Operations
+
+- **Status:** `curl localhost:8000/admin/stats`.
+- **Delete a tag's registrations:** `curl -X DELETE localhost:8000/admin/registrations/<tag>`.
+- **Logs:** `pm2 logs`.

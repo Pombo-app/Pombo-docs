@@ -1,0 +1,42 @@
+---
+title: Direct messages
+description: Open an inbox once, then write to anyone who has one.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Every account can open one inbox. Anyone can write to it; only you can read it.
+
+## Open your inbox
+
+<Steps>
+
+1. Press **Create DM Inbox**. Once the inbox exists, the same button reads **New DM**.
+2. Choose a storage provider and how long messages are kept: 1 day to 1 year, 6 months by default.
+3. Confirm. Creating the inbox takes up to six Polygon transactions, paid in POL from your account.
+
+</Steps>
+
+## Write to someone
+
+Press **New DM** and enter an address or an ENS name. The other person needs an inbox too; if they have none, Pombo shows *This user has not enabled DMs yet.*
+
+## What stays private
+
+| | Who can see it |
+| --- | --- |
+| What you wrote | You and the recipient |
+| That you wrote it | The recipient: each message leaves under a one-time address |
+| That the inbox received something, and when | The network nodes that carry and store it |
+
+## Delete, block, erase
+
+- **Delete** one of your messages and the recipient's app removes it. If the app has not been restarted since you sent it, Pombo also erases it from the recipient's storage, where the provider supports erasing.
+- **Block User** hides someone on all your devices. They can still write: their messages arrive and are dropped.
+- **Erase from storage**, on a message you received, removes it from your inbox's storage providers. It cannot be recovered.
+
+<Aside type="caution">
+Direct messages have no forward secrecy. Anyone who gets your account key can read every message your inbox still stores.
+</Aside>
+
+How it works: [Streams](/protocol/streams/), [Encryption](/protocol/encryption/), [Storage](/protocol/storage/).

@@ -1,0 +1,39 @@
+---
+title: Notifications
+description: Turn notifications on, choose what rings, and what each notification shows.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Turn them on
+
+<Steps>
+
+1. **Settings › Notifications › Push Notifications**. Allow notifications when the browser asks; Android 13 and newer ask when the app starts.
+2. Turn them on for each channel: **Notifications On** in its details, or the **Notifications** tab on the web.
+3. Turn on **Direct Messages** once your DM inbox exists.
+
+</Steps>
+
+**Channel Invites** controls the alerts for invitations to channels. On Android, a conversation's details can mute that one DM.
+
+## What they show
+
+| From | Title | Text |
+| --- | --- | --- |
+| Open channels | The channel name | A preview of the message |
+| Protected, Closed, Gated and Paid channels | The channel name | *New message* |
+| Direct messages, Android | The sender's nickname, ENS name or address | A preview of the message |
+| Direct messages, web | *Pombo* | *You have a new message* |
+
+## On the web
+
+Open and Protected channels notify with no Pombo tab open. Closed, Gated and Paid channels and direct messages need a Pombo tab open, even in the background: checking them needs your key, and the key never leaves the page.
+
+<Aside>
+On iPhone and iPad, add Pombo to the Home Screen first: Safari only notifies for web apps installed there.
+</Aside>
+
+## What the relay learns
+
+The relay that wakes your device sees no message, no sender, no channel and no recipient. Each wake goes to every device registered under a tag that many channels share, so the device it is meant for is one in that crowd (k-anonymity). Each device then checks for itself whether anything is new. How it works: [Push notifications](/protocol/push/).

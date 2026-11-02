@@ -1,0 +1,32 @@
+---
+title: Architecture
+description: The pieces of Pombo and how they talk to each other.
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components';
+
+Pombo is a communication protocol built on Streamr and Polygon, implemented in the Pombo web and Android apps. Each client is a Streamr node, so messages travel peer to peer with no server in between. Ownership and permissions live on Polygon; storage providers keep history; a relay wakes sleeping devices.
+
+<LinkCard title="Interactive protocol map" description="Every component and link, with step-by-step stories for each channel type." href="https://pombo.cc/map/" />
+
+## Components
+
+| Component | Role | Reached over |
+| --- | --- | --- |
+| Clients | Hold the account key; run a Streamr node; encrypt, sign and verify | |
+| Streamr network | Carries every [stream](/protocol/streams/) peer to peer | pub/sub |
+| Polygon | Stream registry and permissions, storage assignments, storage-node registry, [gate contracts](/protocol/access/) | JSON-RPC |
+| The Graph | Indexes the Streamr registry: listed channels, storage assignments, stream metadata | GraphQL over HTTPS |
+| [Storage providers](/protocol/storage/) | Keep stored streams and serve history | HTTPS |
+| [Push relay](/protocol/push/) | Wakes devices by tag | the push stream |
+| Push services | Deliver wakes: FCM, Web Push | from the relay |
+
+## Discovery
+
+- **Channels:** a listed channel says so in its stream metadata, so clients can find it through The Graph. An unlisted channel is found only by its ID.
+- **Storage:** a stream's storage nodes are in Polygon's storage registry, their URLs in each node's on-chain metadata, and their features at `GET /capabilities`.
+- **Relay:** its public key is in the push stream's metadata.
+
+<Aside title="How the official clients do it">
+The web app runs the Streamr SDK in the page. The Android app runs it in a hidden WebView; the account key never enters it, and a native signer answers every signing request. Besides the components above, both contact Ethereum mainnet for ENS names and, when avatars are on, the avatar hosts.
+</Aside>

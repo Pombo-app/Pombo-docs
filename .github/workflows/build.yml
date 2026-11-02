@@ -1,8 +1,8 @@
 # Builds the site on every pull request, so a PR shows green/red before merge.
 # The deploy workflow runs the same build again on main as the gate.
 #
-# For a Docusaurus site the build IS the test suite: broken links, broken
-# anchors and MDX compilation errors all fail it.
+# The build IS the test suite: broken links and anchors (starlight-links-validator)
+# and MDX compilation errors all fail it.
 
 name: Build
 

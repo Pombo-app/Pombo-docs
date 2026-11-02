@@ -1,0 +1,79 @@
+---
+title: Channels
+description: 'Join and create channels, and choose who gets in: Open, Protected, Closed, Gated or Paid.'
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+## Channel types
+
+| Type | Who gets in | Encrypted with |
+| --- | --- | --- |
+| Open | Anyone | Nothing |
+| Protected | Anyone with the password | The password |
+| Closed | Addresses the owner adds | Keys only members receive |
+| Gated | Holders of a token or an NFT | Keys only members receive |
+| Paid | Anyone with an active subscription | Keys only members receive |
+
+How each type is enforced: [Access and gates](/protocol/access/).
+
+## Join
+
+- **From Explore:** open a channel and press **Join**.
+- **From a link:** channel links look like `https://app.pombo.cc/#/channel/…`.
+- **By ID:** **Join Channel** on the web, **Join a channel** on Android, with the password if there is one.
+
+Protected channels ask for the password. Closed, Gated and Paid channels open a join screen that shows what the channel asks for and whether you have it:
+
+- **Closed:** ask the owner to add your address, then press **Check Again**.
+- **Gated:** hold the token or NFT shown, then press **Enter Channel**.
+- **Paid:** press **Pay** with the price shown.
+
+<Aside type="caution">
+A link to a Protected channel is an invite that carries the password. Anyone who gets the link can read the channel.
+</Aside>
+
+## Paid subscriptions
+
+- Paying extends your subscription from its current end. The payment goes straight to the owner.
+- In the last 3 days a banner shows **Subscription ends in …** with **Renew**.
+- When it ends, the channel locks until you renew. There is no grace period.
+
+## Create a channel
+
+<Steps>
+
+1. Open **Create Channel** and pick a type.
+2. Name it, then fill in what the type needs: the password, the member addresses, the token or NFT and minimum balance, or the payment token, price and period (30 days by default).
+3. For Closed, Gated and Paid, pick **Identity on the wire**: **Sealed** or **Visible**. It cannot change later.
+4. Turn on **Listed** to show it in Explore, with a description, language and category.
+5. Turn on **Read-Only** if only you, and your moderators, should post. Members can still react.
+6. Pick the **Storage Provider** and **Message Retention**: 1 day to 1 year, 6 months by default.
+7. Check **Est. cost** and create. Keep the app open until every transaction is done.
+
+</Steps>
+
+| | Sealed (default) | Visible |
+| --- | --- | --- |
+| Who sees each author | Members only | Anyone, forever |
+| Removed members | Can still fill storage with junk until you **Reset Publish Key**, a paid action | Rejected by readers, and by Pombo's storage nodes within 10 minutes |
+
+## Manage a channel
+
+Open the channel's details. The web shows them as tabs: **Info**, **Members**, **Notifications**, **Storage**, **Moderation** and **Delete**; Android shows the same sections on one screen.
+
+| To | Go to |
+| --- | --- |
+| Edit the name or description | **Info › Edit channel info** |
+| Change the image | **Info › Upload image** |
+| Add members (Closed) | **Members › Add Members** |
+| Remove a member or make them a moderator | **Members**, then the member's menu |
+| Change retention or add a storage provider | **Storage** |
+| Hide, pin, ban | [Moderation](/use/moderation/) |
+| Delete the channel for everyone | **Delete** |
+
+Editing info, members, moderators or storage, and deleting, are Polygon transactions. A storage provider added later keeps only what is published after it joins.
+
+## Leave
+
+**Leave Channel** in the channel menu. You can join again later.

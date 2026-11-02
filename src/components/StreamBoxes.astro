@@ -1,0 +1,96 @@
+---
+const streams = [
+	{ id: '-1', name: 'Messages', carries: 'messages, overrides, stored files', partitions: 12, stored: true },
+	{ id: '-2', name: 'Ephemeral', carries: 'presence, typing, P2P media', partitions: 3, stored: false },
+	{ id: '-3', name: 'Admin', carries: 'moderation, channel image, password challenge', partitions: 3, stored: true },
+	{ id: '-4', name: 'Keys', carries: 'key announces, requests and answers, member roster', partitions: 4, stored: true, note: 'Closed, Gated, Paid' },
+	{ id: '-5', name: 'Interactions', carries: 'reactions', partitions: 3, stored: true },
+];
+---
+
+<div class="streams not-content">
+	{streams.map((s) => (
+		<div class="box">
+			<div class="head">
+				<b>{s.name} <i>{s.id}</i></b>
+				<span class="meta">
+					{s.partitions} partitions ·
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class:list={{ off: !s.stored }}>
+						<title>{s.stored ? 'stored' : 'not stored'}</title>
+						<ellipse cx="12" cy="5" rx="8" ry="3" />
+						<path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
+					</svg>
+				</span>
+			</div>
+			<p>{s.carries}</p>
+			{s.note && <span class="tag">{s.note} only</span>}
+		</div>
+	))}
+</div>
+
+<style>
+	.streams {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+		gap: 0.6rem;
+		margin: 1.5rem 0;
+		padding: 0.9rem;
+		border: 1px solid rgba(255, 92, 0, 0.3);
+		border-radius: 0.9rem;
+		background: rgba(255, 92, 0, 0.05);
+	}
+	.box {
+		display: flex;
+		flex-direction: column;
+		gap: 0.3rem;
+		padding: 0.7rem 0.85rem;
+		border-radius: 0.5rem;
+		background: var(--sl-color-gray-6);
+	}
+	.head {
+		display: flex;
+		justify-content: space-between;
+		align-items: baseline;
+		gap: 0.5rem;
+	}
+	.head b {
+		font-weight: 600;
+		color: var(--sl-color-white);
+	}
+	.head i {
+		font-style: normal;
+		font-family: var(--sl-font-mono);
+		color: #ff5c00;
+	}
+	.meta {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		font-family: var(--sl-font-mono);
+		font-size: 0.75rem;
+		color: var(--sl-color-gray-3);
+		white-space: nowrap;
+	}
+	.meta svg {
+		width: 0.8rem;
+		height: 0.8rem;
+		color: var(--sl-color-gray-2);
+	}
+	.meta svg.off {
+		color: var(--sl-color-gray-5);
+	}
+	p {
+		margin: 0;
+		font-size: 0.875rem;
+		color: var(--sl-color-gray-3);
+	}
+	.tag {
+		align-self: flex-start;
+		font-family: var(--sl-font-mono);
+		font-size: 0.7rem;
+		padding: 0.05rem 0.45rem;
+		border-radius: 999px;
+		border: 1px solid var(--sl-color-gray-5);
+		color: var(--sl-color-gray-3);
+	}
+</style>
