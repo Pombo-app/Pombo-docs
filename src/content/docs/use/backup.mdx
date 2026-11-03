@@ -8,7 +8,7 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 | | Backup file | Device sync |
 | --- | --- | --- |
 | What it is | An encrypted file you keep | Snapshots your devices share through your DM inbox |
-| When | When you export it | Automatically, or with **Sync Devices** |
+| When | When you export it | Automatically, or with **Sync Now** |
 | Carries your key | Yes, encrypted | No: each device needs the account first |
 | Needs | Nothing | Your DM inbox |
 
@@ -37,18 +37,18 @@ Already signed in? Use **Backup & Restore › Import**.
 
 ## Device sync
 
-Devices of one account share channels, channel keys, sent direct messages, contacts and profile. Content settings stay on each device. Sync travels through your own DM inbox, so create it first.
+Devices of one account share channels, channel keys, sent direct messages and reactions, blocked users, contacts, ENS names, The Graph key and profile. Content settings stay on each device. Sync travels through your own DM inbox, so create it first.
 
 | Mode | Syncs |
 | --- | --- |
 | **Automatic** | At start, when you come back to the app, and after each change |
 | **Skip on start** | Like Automatic, without the run at start |
-| **Manual only** | Only when you press **Sync Devices** |
+| **Manual only** | Only when you press **Sync Now** |
 
-The mode is in **Settings › Device Sync** on the web and **Settings › Account** on Android. **Sync Devices** is in the account menu on the web and the **Settings** menu on Android.
+The mode is in **Settings › Device Sync** on both clients. **Sync Now** is in the account menu on the web, and in **Device Sync** on both clients.
 
 <Aside title="A new device">
-Import your key or restore a backup, then press **Sync Devices** to bring in what changed since.
+Import your key or restore a backup, then press **Sync Now** to bring in what changed since.
 </Aside>
 
 How it works: [Device sync](/protocol/sync/).
