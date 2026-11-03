@@ -15,7 +15,7 @@ Every action works at one of three levels:
 
 ## The message menu
 
-Right-click or double-tap a message on the web; long-press it on Android.
+Right-click or long-press a message on the web; long-press it on Android.
 
 | Action | Who | What it does | Level |
 | --- | --- | --- | --- |
@@ -40,7 +40,7 @@ The owner removes their own messages with **Hide Message**. Pinning and hiding a
 
 In Open and Protected channels there is no gate, so a ban can only hide. If the key cannot rotate at once, the owner's app rotates it the next time it connects.
 
-**Moderation › Banned Members** lists bans, with **Unban**. Giving access back is one transaction.
+**Moderation › Banned Members** lists bans, with **Unban**. Lifting a ban that cut access takes one transaction. Lifting a hide-only ban is free.
 
 ## Moderators' actions
 
@@ -48,11 +48,11 @@ What a moderator hides or bans takes effect at once. The owner then sees **Confi
 
 ## Advanced
 
-**Moderation › Advanced**, for the owner of a Closed, Gated or Paid channel.
+On the web, the **Advanced** section of **Moderation** holds these buttons, for the owner of a Closed, Gated or Paid channel.
 
 | Button | Use it to | Cost |
 | --- | --- | --- |
-| **Rotate Now** | Issue a new channel key now. Anyone without access stops reading new messages. The app also rotates weekly | Free |
+| **Rotate Now** | Issue a new channel key now. Anyone without access stops reading new messages. The owner's app also rotates the key weekly | Free |
 | **Reset Publish Key** | Sealed channels: cut off an ex-member who keeps writing junk to storage | Two transactions |
 | **Reset Interactions Key** | Sealed channels: bring back reactions and presence when no device holds their key, or cut off an ex-member who kept it | One transaction |
 
@@ -61,8 +61,8 @@ What a moderator hides or bans takes effect at once. The owner then sees **Confi
 New members get the channel keys from a member's device that is online. **Key Responder** keeps one of yours answering:
 
 - **Web:** in the channel's **Notifications** tab, for the owner and moderators, while a Pombo tab is open.
-- **Android:** **Background Key Responder**, for the owner, even with the app closed.
+- **Android:** **Background Key Responder**, for the owner and moderators, even with the app closed.
 
 <Aside type="caution" title="Moderation state is too large">
-Pins and hides share one state with a size limit. If Pombo says it is too large, unpin some messages and try again.
+Pins, hidden messages and bans are stored together as one state. Pombo splits a large state into up to four parts automatically. Past that, it refuses to publish and asks you to unpin some messages.
 </Aside>
