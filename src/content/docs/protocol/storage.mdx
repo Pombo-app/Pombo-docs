@@ -31,12 +31,12 @@ Stored streams are kept by storage providers assigned per stream on chain. `pomb
 
 ## Reads
 
-- **Signed reads** are required for gated streams, except `-3`, and for streams without public subscribe, such as an inbox. Headers `x-pombo-user`, `-issued-at`, `-nonce` and `-signature` carry an EIP-191 signature, valid for 5 minutes, one use per nonce. The reader must pass the gate or hold the subscribe permission.
-- **Answers:** `401` bad signature, `403` no access, `503` chain unreachable. While the chain is down, streams last seen as public are still served.
+- **Signed reads** are required for gated streams, except `-3`, and for streams without public subscribe, such as an inbox. Headers `x-pombo-user`, `-issued-at`, `-nonce` and `-signature` carry an EIP-191 signature, issued within 5 minutes of the node's clock; each nonce is accepted once. The reader must pass the gate or hold the subscribe permission.
+- **Answers:** `401` bad signature, `403` no access, `404` unknown stream, `503` chain unreachable. While the chain is down, streams last seen as public are still served.
 
 ## Erasing
 
-`POST …/purge` deletes up to 100 messages from one node. The node honours the stream's owner, the gate's owner and moderators, and, outside Sealed channels, the message's own signer. Each target is answered `deleted`, `forbidden` or `not_found`. Other providers keep their copies.
+`POST …/purge` takes up to 100 targets on one node, each a message's timestamp and sequence number. The node honours the stream's owner, the gate's owner and moderators, and, outside Sealed channels, the message's own signer. Each target is answered `deleted`, `forbidden` or `not_found`. Other providers keep their copies.
 
 ## Providers added later
 
