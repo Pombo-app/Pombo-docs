@@ -15,7 +15,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 ## Read-only channels
 
-Only the owner and moderators post to `-1`; members still publish on `-2` and `-5`.
+Only the owner posts to `-1`, plus moderators in Closed, Gated and Paid channels; members still publish on `-2` and `-5`.
 
 | Mode | Enforced by |
 | --- | --- |
@@ -31,12 +31,13 @@ One contract per channel, cloned from a factory. The account that creates it is 
 
 - **Access order:** the owner passes, a banned account fails, a moderator passes, then the mode decides: allowlist, token balance, NFT, or paid subscription.
 - **`checkAccess`** is strict. Key holders must ask it before handing out keys.
-- **`isValidSignature`** (ERC-1271) is what the network asks when a Visible channel publishes. It passes messages if the token contract itself fails.
+- **`isValidSignature`** (ERC-1271) is what the network asks when an account publishes through the gate: in Visible channels, and on `-4` in every mode. It passes messages if the token contract itself fails.
 - **Set once, at creation:** owner, mode, token, minimum balance, identity on the wire, read-only.
 
 | Call | Owner | Moderator |
 | --- | --- | --- |
-| `allow`, `allowBatch`, `revokeAllow` (Closed) | yes | yes, except on the owner and other moderators |
+| `allow`, `allowBatch` (Closed) | yes | yes |
+| `revokeAllow` (Closed) | yes | yes, except on the owner and other moderators |
 | `ban`, `unban` | yes | |
 | `setModerator` | yes | |
 | `setPrice`, `setDuration` (Paid) | yes | |
@@ -59,5 +60,5 @@ Key holders hand keys only to accounts `checkAccess` admits at that moment, and 
 At ingest a node checks the signature and the publish permission; for Visible channels that asks the gate. It caches a "yes" for 10 minutes and a "no" for 20 seconds. Reading gated history needs a read signed by an admitted account. See [Storage](/protocol/storage/).
 
 <Aside title="How the official clients do it">
-Key holders check access against more than one RPC and refuse when they disagree. The owner's app starts a new epoch every week, and whenever it notices that an account lost access, so a lapsed member stops reading within a week at most. The apps pay subscriptions by wrapping POL if needed, approving, then calling `pay`.
+Key holders check access on two RPC endpoints; when they disagree, further endpoints break the tie, and an unresolved tie refuses. The owner's app starts a new epoch every week, and whenever it notices that an account lost access, so a lapsed member stops reading within a week at most. The apps pay subscriptions by wrapping POL if needed, approving, then calling `pay`.
 </Aside>
