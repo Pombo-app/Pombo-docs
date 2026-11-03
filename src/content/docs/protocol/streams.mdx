@@ -44,7 +44,7 @@ Stream IDs are `{owner address}/{random hex}-1` to `-5`. Each stream's on-chain 
 | `d`, `l`, `c` | `-1` | description, language, category; listed channels only |
 | `r` | `-1` | read-only |
 | `g` | `-1` | gate contract address |
-| `m` | `-1` | `1` for Sealed; absent for Visible. Never changes |
+| `m` | `-1` | `1` for Sealed; absent for Visible. Mirrors the gate contract's `wireIdentity`, which cannot change |
 | `ts` | `-1` | creation time, in milliseconds |
 | `ln` | `-2` to `-5` | the `-1` stream ID |
 | `k` | `-3`, `-4`, `-5` | `admin`, `keys`, `interactions` |
@@ -63,7 +63,7 @@ The owner keeps every permission on the streams they create. The other grants:
 | `-4` | | the gate contract subscribes and publishes |
 | `-5` | public subscribe and publish, even when read-only | the gate contract subscribes; Sealed: the interactions key publishes. Visible: the gate contract publishes |
 
-Members of gated channels subscribe and publish through the gate contract, with ERC-1271 signatures. Joining or leaving is a gate transaction, never a stream transaction. See [Access and gates](/protocol/access/).
+Members of gated channels subscribe and publish through the gate contract, with ERC-1271 signatures. The gate contract decides who is a member; stream permissions never change per member. See [Access and gates](/protocol/access/).
 
 ## Direct-message inbox
 
