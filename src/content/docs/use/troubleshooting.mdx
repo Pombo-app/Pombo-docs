@@ -9,7 +9,7 @@ description: What Pombo's messages mean, and what to do about them.
 | --- | --- |
 | *Waiting for channel keys…* | Wait. Keys come from another member's device, so one must be online. |
 | *Incorrect password for this channel* | Ask the owner for the password, or for an invite link. |
-| *No active subscription*, *Subscription expired* | Press **Subscribe** or **Renew**. |
+| *No active subscription*, *Subscription expired* | Press **Pay** on the join screen, or **Renew** on the banner. |
 | *A moderator removed your access to this channel* | Only the owner can give it back. |
 | *Channel history is temporarily unavailable* | Reopen the channel. If it says the node has not caught up with your access, wait: it retries by itself. |
 | *The storage node did not accept this read* | Check that your device's clock is right. |
@@ -21,7 +21,7 @@ description: What Pombo's messages mean, and what to do about them.
 | You see | What to do |
 | --- | --- |
 | *This user has not enabled DMs yet* | They need to open Pombo and create their inbox. If you know they have one, try again later. |
-| *Create DM inbox first to enable sync* | Create your DM inbox: see [Direct messages](/use/direct-messages/). |
+| *Create DM inbox first to enable sync* (web) | Create your DM inbox: see [Direct messages](/use/direct-messages/). |
 
 ## Payments
 
@@ -34,7 +34,7 @@ description: What Pombo's messages mean, and what to do about them.
 
 ## Settings that help
 
-- **Settings › API › Polygon RPC** picks which endpoints Pombo uses, in order. **Add custom endpoint** adds your own; **Test all** checks them. On the web, *Your RPC endpoints disagree on access to this channel* means one of them may be compromised: check them here.
-- **Settings › API › The Graph API**: Explore and channel lookups use a shared, rate-limited key. If Explore is slow or empty, add your own from [thegraph.com/studio](https://thegraph.com/studio/).
-- **Settings › DM Inbox**: **Diagnose** checks your inbox; **Repair** fixes what it can.
-- **Sync Devices** brings in what your other devices changed. See [Backup and devices](/use/backup/).
+- **Settings › Networks › Polygon RPC** picks which endpoints Pombo uses, in order. **Add custom endpoint** adds your own; **Test all** checks them. On the web, *Your RPC endpoints disagree on access to this channel* means one of them may be compromised: check them here.
+- **Settings › Networks › The Graph API**: Explore and channel lookups use a shared, rate-limited key. If Explore is slow or empty, add your own from [thegraph.com/studio](https://thegraph.com/studio/).
+- **Settings › Repair** on the web, or **Settings › DM Inbox** on Android: **Diagnose** checks your inbox; **Repair** fixes what it can.
+- **Sync Now** brings in what your other devices changed. See [Backup and devices](/use/backup/).
