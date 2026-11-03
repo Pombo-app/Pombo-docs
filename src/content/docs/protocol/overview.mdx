@@ -28,5 +28,5 @@ Pombo is a communication protocol built on Streamr and Polygon, implemented in t
 - **Relay:** its public key is in the push stream's metadata.
 
 <Aside title="How the official clients do it">
-The web app runs the Streamr SDK in the page. The Android app runs it in a hidden WebView; the account key never enters it, and a native signer answers every signing request. Besides the components above, both contact Ethereum mainnet for ENS names and, when avatars are on, the avatar hosts.
+The web app runs the Streamr SDK in the page. The Android app runs it in a hidden WebView. The account key passes through the WebView only when an account is created or imported; after that, a native signer answers every signing request. Besides the components above, both contact Ethereum mainnet for ENS names and, when avatars are on, the avatar hosts.
 </Aside>
