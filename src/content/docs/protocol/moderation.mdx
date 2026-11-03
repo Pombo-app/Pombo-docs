@@ -11,7 +11,7 @@ Moderation works at four layers of different strength: declarations that readers
 
 - **Network:** only the owner can publish on `-3`.
 - **Fields:** `bannedMembers` (address and `sinceEpoch`), `hiddenMessageIds`, `pins`, `absorbedThrough`, with a revision `rev` and a timestamp `ts`.
-- **Readers:** the snapshot with the highest `(rev, ts)` is current; one not signed by the owner is invalid. In gated channels it is encrypted with the epoch key. A snapshot too large for one message is sent as chunks plus a manifest.
+- **Readers:** the snapshot with the highest `(rev, ts)` is current; readers also drop one whose `createdBy` is not the owner. In gated channels it is encrypted with the epoch key. A snapshot too large for one message is sent as chunks plus a manifest.
 
 A hidden message or a banned member is a declaration. The network still delivers and stores those messages; each client decides how to render them.
 
