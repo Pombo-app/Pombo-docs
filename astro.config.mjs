@@ -7,7 +7,7 @@ export default defineConfig({
 	site: 'https://docs.pombo.cc',
 	devToolbar: { enabled: false },
 	redirects: {
-		'/welcome': '/',
+		'/welcome': '/what-is-pombo/',
 		'/use/install': '/use/get-started/',
 		'/use/first-steps': '/use/get-started/',
 		'/use/faq': '/use/troubleshooting/',
@@ -54,6 +54,7 @@ export default defineConfig({
 				{ tag: 'meta', attrs: { property: 'og:image', content: 'https://docs.pombo.cc/favicon/og-banner.png' } },
 			],
 			sidebar: [
+				{ slug: 'what-is-pombo' },
 				{
 					label: 'Use Pombo clients',
 					items: [

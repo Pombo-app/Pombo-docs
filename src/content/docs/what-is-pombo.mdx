@@ -1,0 +1,70 @@
+---
+title: What is Pombo?
+description: An open-source, peer-to-peer messaging protocol for channels and direct messages, with official clients for the web and Android.
+---
+
+Pombo is an open-source, peer-to-peer messaging protocol for channels and direct messages, with official clients for the web and Android. It runs on open infrastructure, not on a company's servers.
+
+- Your account is a key pair on your device. No email, no phone number, no approval step.
+- Direct messages are end-to-end encrypted and published under a new key each time, so the network does not learn who wrote them.
+- Channels are Open, Protected, Closed, Gated or Paid, and a Paid channel's price goes straight to its owner.
+
+Everything below follows from how Pombo is built, not from a policy someone maintains.
+
+## Nobody has to let you in
+
+Creating an account registers nothing: the key is made on your device, so there is no account for anyone to approve, suspend or lock out. Creating a channel registers it on Polygon under your address, and it is yours. Accounts are free and instant, so separate identities for separate parts of your life cost nothing.
+
+## Anyone can run the infrastructure
+
+Messages travel peer to peer across the [Streamr Network](https://streamr.network); every app is a Streamr node. History is kept by storage providers: Pombo runs a default cluster, each channel's owner chooses its providers, and [anyone can run one](/operators/run-a-storage-node/). Anyone can also [run a push relay](/operators/run-a-relay/), though the official apps use Pombo's.
+
+## Your channels outlive the app
+
+Channel ownership and access rules are records on [Polygon PoS](https://polygon.technology), registered to your address. Pombo holds no key that can take a channel from you or change who may read it. Any app that speaks the protocol reads the same channels, so the official ones are replaceable.
+
+## Encrypted before it leaves your device
+
+All cryptography runs on your device, on the web and on Android. Direct messages are sealed to their recipient. Protected channels are encrypted with their password; Closed, Gated and Paid channels with keys only members receive. In Protected and Sealed channels, only members can see who wrote each message. In Open and Visible channels anyone can, although Visible channels still encrypt what is sent. The [threat model](/security/threat-model/) says exactly where this protection stops.
+
+## Creators keep the whole price
+
+A Gated channel asks for a token or an NFT; a Paid channel charges a subscription at a price its owner sets. Each payment is a single transfer to the owner's address, with no fee and no Pombo account in between.
+
+Everything else is free. Actions that write to Polygon, such as creating a channel, cost POL paid to the network.
+
+## Channel types
+
+| | Open | Protected | Closed | Gated | Paid |
+| --- | --- | --- | --- | --- | --- |
+| Who reads and writes | Anyone | Anyone with the password | Addresses the owner adds | Holders of a token or an NFT | Active subscribers |
+| Cost to join | Free | Free | Free; the owner pays to add you | Holding the asset | The subscription price |
+| Moderators | No | No | Yes | Yes | Yes |
+| Listed in Explore | Optional | Optional | Never | Optional | Optional |
+
+How to join and create each type: [Channels](/use/channels/). How each is enforced: [Access and gates](/protocol/access/).
+
+## Where to start
+
+| You want to | Start here |
+| --- | --- |
+| Try it | [Get started](/use/get-started/) |
+| Run a channel | [Channels](/use/channels/) |
+| Look something up | [Limits and defaults](/reference/limits/) · [Glossary](/reference/glossary/) |
+| Understand it | [Architecture](/protocol/overview/) · [Encryption](/protocol/encryption/) · [Identity](/protocol/identity/) |
+| Check our claims | [Threat model](/security/threat-model/) · [Client security](/security/client-security/) |
+| Run infrastructure | [Run a storage node](/operators/run-a-storage-node/) · [Run a push relay](/operators/run-a-relay/) |
+
+## Platforms
+
+- **Web** at [app.pombo.cc](https://app.pombo.cc), installable as an app from the browser, on iPhone and iPad too.
+- **Android**, a native app that speaks the same protocol.
+
+One account works on both, and both read the same channels and messages.
+
+## Links
+
+- Website: [pombo.cc](https://pombo.cc)
+- App: [app.pombo.cc](https://app.pombo.cc)
+- Source code: [github.com/Pombo-app](https://github.com/Pombo-app)
+- X: [@app_Pombo](https://x.com/app_Pombo)
