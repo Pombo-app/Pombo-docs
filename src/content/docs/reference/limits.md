@@ -9,8 +9,7 @@ Protocol constants, such as partition counts, are in [Streams](/protocol/streams
 
 | What | Value |
 | --- | --- |
-| Retention when creating a channel or an inbox | 1 to 365 days; 180 by default |
-| Retention in channel settings | 1 to 3,650 days |
+| Retention of a channel or an inbox | 1 to 365 days; 180 by default |
 | Retention a node applies when none is set | 365 days |
 | New epoch key | Weekly, and at once after a ban or an allowlist removal |
 | Previous epoch still accepted after a new one | 10 minutes |
