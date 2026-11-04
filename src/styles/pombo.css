@@ -42,12 +42,27 @@
 	font-size: 0.9375rem;
 }
 
+.hero .tagline p + p {
+	margin-top: 1rem;
+	font-size: var(--sl-text-base);
+	line-height: 1.65;
+}
+
+.hero .tagline p:first-child {
+	color: var(--sl-color-white);
+}
+
 @media (min-width: 50rem) {
 	.hero.hero {
 		padding-block: 2rem;
+		grid-template-columns: 3fr 1fr;
 	}
 
 	.hero.hero > img {
-		width: min(100%, 16rem);
+		width: min(100%, 14rem);
+	}
+
+	.hero .copy > .tagline {
+		max-width: 68ch;
 	}
 }
