@@ -33,5 +33,5 @@ Devices of the same account share state through a snapshot sealed to that accoun
 | Everything else | Newest wins; an empty value never replaces a real one |
 
 <Aside title="How the official clients do it">
-They push 15 seconds after a change, when the app goes to the background, and again after 7 days; they read each push back to confirm it, and skip publishing an unchanged state. They pull when another device has published something newer. Up to 200 sent messages per conversation are kept. Content settings stay on each device.
+They push 15 seconds after a change, when the app goes to the background, and again after 7 days; they read each push back to confirm it, and skip publishing an unchanged state. A change stays pending, across restarts, until a push of it is confirmed: a failed push is retried, at most every 5 minutes, and a device that starts with pending changes pushes before it pulls. They pull when another device has published something newer. Up to 200 sent messages per conversation are kept. Content settings stay on each device.
 </Aside>
