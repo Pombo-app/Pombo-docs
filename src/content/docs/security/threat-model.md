@@ -22,7 +22,7 @@ Pombo removes the server that reads everything. It does not remove every observe
 ## The network
 
 - Stream IDs start with the creator's address, so every channel shows its owner, and every inbox its recipient.
-- Who publishes on the wire depends on the channel: see [Identity](/protocol/identity/). In Visible channels anyone can recover each author from the signature. Key requests on `-4` name the requester's account in every mode.
+- Who publishes on the wire depends on the channel: see [Identity](/protocol/identity/). In Visible channels anyone can recover each author from the signature. Every message on `-4` (key requests and answers, roster entries) names its sender's account in every mode.
 - Direct messages leave under a new key each time. The network still sees when an inbox receives something, how big it is, and from the partition whether it is a message, a sync snapshot or an invite.
 - Nothing pads message sizes.
 
@@ -37,7 +37,7 @@ Everything on Polygon is public and permanent:
 
 ## Service providers
 
-- **RPC providers** see each call. When a member's device answers a key request it asks `checkAccess(requester)`, which tells the provider who is asking for which channel's keys. The official clients ask several providers and refuse when they disagree.
+- **RPC providers** see each call. When a member's device answers a key request it asks `checkAccess(requester)`, which tells the provider who is asking for which channel's keys. The official clients ask two providers, ask more when those disagree, and refuse when the tie stays unresolved.
 - **The Graph** sees which channels you look up, from your IP.
 - **Storage providers** learn the reading account on every signed read. What else they can and cannot do: [Storage](/protocol/storage/).
 - **The push relay** stores tags and device endpoints; a device registered under several tags links them. It keeps no account or channel. See [Push notifications](/protocol/push/).
