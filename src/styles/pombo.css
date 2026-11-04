@@ -41,3 +41,13 @@
 .sl-markdown-content table {
 	font-size: 0.9375rem;
 }
+
+@media (min-width: 50rem) {
+	.hero.hero {
+		padding-block: 2rem;
+	}
+
+	.hero.hero > img {
+		width: min(100%, 16rem);
+	}
+}
