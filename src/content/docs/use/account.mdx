@@ -1,0 +1,52 @@
+---
+title: Your account
+description: Your address and name, the wallet that pays for on-chain actions, your private key, and using several accounts.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Your account is a Polygon key pair. Its address is who you are in Pombo: others see it, write to it and add it to channels.
+
+## Address and name
+
+- **Settings › Profile** shows your **Account Address**. Use the copy icon next to it to copy it.
+- **Display Name** is what others see, up to 18 characters.
+- If your address has a primary ENS name, Pombo uses it in place of the display name and marks it **ENS Verified**. Others can start a DM with that name.
+
+## Wallet
+
+**Wallet** lists your POL, DATA and USDC. **Fund with MetaMask** opens MetaMask (the browser extension or the Android app) so you can top up this address.
+
+| Costs POL | Free |
+| --- | --- |
+| Creating a channel | Reading and writing |
+| Creating your DM inbox, once | Reactions |
+| Editing a channel's info or storage | Pinning and hiding messages |
+| Adding and removing members, moderators | Rotating a channel key |
+| Cutting someone's access | Device sync |
+| Paying a subscription | |
+
+Before creating a channel or an inbox, Pombo shows **Est. cost** and warns you if the balance looks too low.
+
+## Private key
+
+Open **Settings › Account**, then **Private Key**. Unlock it with your password on the web, or your screen lock on Android. Press and hold **Copy** for 2 seconds. On Android the key leaves the clipboard after 60 seconds.
+
+<Aside type="danger">
+Anyone with this key has full control of your account.
+</Aside>
+
+## Several accounts
+
+<Tabs syncKey="client">
+<TabItem label="Web">
+**Switch Account** and **Disconnect** are in the account menu.
+</TabItem>
+<TabItem label="Android">
+**Profile** lists your **ACCOUNTS**; switching asks for your screen lock. **Add account** adds another. **Browse as guest** lets you explore and participate with a throwaway account.
+</TabItem>
+</Tabs>
+
+## Delete an account
+
+Open **Settings › Account**, then **Delete Account**. Confirm with your password on the web or your screen lock on Android, then press and hold **Delete** for 2 seconds. The key and everything Pombo keeps for the account on this device are deleted. Without the key or a [backup](/use/backup/), the account cannot come back.

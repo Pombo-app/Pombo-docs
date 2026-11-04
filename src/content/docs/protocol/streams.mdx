@@ -1,0 +1,81 @@
+---
+title: Streams
+description: The Streamr streams behind every channel, direct-message inbox and wake signal.
+---
+
+import StreamBoxes from '../../../components/StreamBoxes.astro';
+
+A channel is up to five Streamr streams that share a base ID. Each stream carries one kind of traffic and has a fixed number of partitions. Every stream is delivered live to its subscribers; a stored stream is also kept by the channel's storage providers for later reads.
+
+<StreamBoxes />
+
+## Channel streams
+
+| Stream | Carries | Partitions | Stored |
+| --- | --- | --- | --- |
+| `-1` Messages | messages, overrides, stored files | 12 | yes |
+| `-2` Ephemeral | presence, typing, P2P media | 3 | no |
+| `-3` Admin | moderation state, channel image, password challenge | 3 | yes |
+| `-4` Keys | key announces, requests and answers, member roster | 4 | yes |
+| `-5` Interactions | reactions | 3 | yes |
+
+Open and Protected channels have no `-4`: they use no epoch keys.
+
+## Partitions
+
+| Stream | P0 | P1 | P2 | P3 and up |
+| --- | --- | --- | --- | --- |
+| `-1` | messages | edits and deletes | moderator actions | P3 to P11: stored-file chunks |
+| `-2` | presence, typing | P2P media signals | P2P media data | |
+| `-3` | moderation state | channel image | password challenge | |
+| `-4` | key announces | key requests and answers | member roster | P3: reserved |
+| `-5` | reactions | reserved | reserved | |
+
+## IDs and metadata
+
+Stream IDs are `{owner address}/{random hex}-1` to `-5`. Each stream's on-chain description holds a JSON object with short keys; The Graph indexes it, and clients read it before joining.
+
+| Key | On | Value |
+| --- | --- | --- |
+| `a`, `v` | every stream | `"pombo"`, `"1"` |
+| `t` | `-1` | `public` (Open), `password` (Protected), `gated` (Closed, Gated, Paid) |
+| `e` | `-1` | `visible` when listed, `hidden` otherwise |
+| `n` | `-1` | name; `null` when not listed |
+| `d`, `l`, `c` | `-1` | description, language, category; listed channels only |
+| `r` | `-1` | read-only |
+| `g` | `-1` | gate contract address |
+| `m` | `-1` | `1` for Sealed; absent for Visible. Mirrors the gate contract's `wireIdentity`, which cannot change |
+| `ts` | `-1` | creation time, in milliseconds |
+| `ln` | `-2` to `-5` | the `-1` stream ID |
+| `k` | `-3`, `-4`, `-5` | `admin`, `keys`, `interactions` |
+
+Explore lists the `-1` streams whose metadata has `a: "pombo"` and `e: "visible"`. Whether a gated channel is Closed, Gated or Paid is read from its gate contract.
+
+## Permissions
+
+The owner keeps every permission on the streams they create. The other grants:
+
+| Stream | Open, Protected | Closed, Gated, Paid |
+| --- | --- | --- |
+| `-1` | public subscribe and publish; subscribe only when read-only | the gate contract subscribes; Sealed: the publish key publishes. Visible: the gate contract publishes |
+| `-2` | public subscribe and publish | as `-1`, plus the interactions key publishes in Sealed |
+| `-3` | public subscribe | the gate contract subscribes; public subscribe too when listed |
+| `-4` | | the gate contract subscribes and publishes |
+| `-5` | public subscribe and publish, even when read-only | the gate contract subscribes; Sealed: the interactions key publishes. Visible: the gate contract publishes |
+
+Members of gated channels subscribe and publish through the gate contract, with ERC-1271 signatures. The gate contract decides who is a member; stream permissions never change per member. See [Access and gates](/protocol/access/).
+
+## Direct-message inbox
+
+Each account's inbox is two streams derived from its address: `{address}/Pombo-DM-1` and `{address}/Pombo-DM-2`.
+
+| Stream | Carries | Partitions | Stored |
+| --- | --- | --- | --- |
+| `DM-1` | P0 messages, P1 sync, P2 sync images, P3 invites, P4 to P12 stored-file chunks | 13 | yes |
+| `DM-2` | presence, typing, P2P media | 3 | no |
+
+Both grant public publish and no public subscribe: anyone can write, only the owner reads. `DM-1` metadata is `{a, v, t: "dm-inbox", pk}`, where `pk` is the owner's compressed public key that senders encrypt to; `DM-2` carries `ln`.
+
+## Push stream
+
+One stream serves the whole network. It has one partition and no storage. Anyone may publish to it; the public cannot subscribe, and the relay reads it. See [Push notifications](/protocol/push/).

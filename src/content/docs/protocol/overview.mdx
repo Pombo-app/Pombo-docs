@@ -1,0 +1,44 @@
+---
+title: Architecture
+description: The pieces of Pombo and how they talk to each other.
+---
+
+import { Aside, LinkCard } from '@astrojs/starlight/components';
+
+Pombo is a communication protocol built on Streamr and Polygon, implemented in the Pombo web and Android apps. Each client is a Streamr node, so messages travel peer to peer with no server in between. Ownership and permissions live on Polygon; storage providers keep history; a relay wakes sleeping devices.
+
+<LinkCard title="Interactive protocol map" description="Every component and link, with step-by-step stories for each channel type." href="https://pombo.cc/map/" />
+
+## Components
+
+| Component | Role | Reached over |
+| --- | --- | --- |
+| Clients | Hold the account key; run a Streamr node; encrypt, sign and verify | |
+| Streamr network | Carries every [stream](/protocol/streams/) peer to peer | pub/sub |
+| Polygon | Stream registry and permissions, storage assignments, storage-node registry, [gate contracts](/protocol/access/) | JSON-RPC |
+| The Graph | Indexes the Streamr registry: listed channels, storage assignments, stream metadata | GraphQL over HTTPS |
+| [Storage providers](/protocol/storage/) | Keep stored streams and serve history | HTTPS |
+| [Push relay](/protocol/push/) | Wakes devices by tag | the push stream |
+| Push services | Deliver wakes: FCM, Web Push | from the relay |
+
+## What Pombo adds
+
+None of the building blocks was made for group chat. Each one needed a layer on top.
+
+| Building block | What it provides | What Pombo adds |
+| --- | --- | --- |
+| Streamr network | Signed pub/sub, without accounts | Streamr's key exchange needs the publisher online. Pombo publishes without it and members hand keys to each other on `-4` |
+| Streamr registry on Polygon | Stream ownership and per-address permissions | Every change of permissions is a transaction on the stream. Gated channels give them to a gate contract once, so access follows its allowlist, a token balance or a payment, with no change to the stream |
+| Storage nodes | History for members who were offline | `pombo-storage-node` adds checks at ingest, signed reads, purge and `storedAt` |
+| Web Push, FCM | A way to wake a device that is not running | A relay that knows whom to wake learns who talks to whom. Wakes name a 1-byte tag shared by many channels and carry a proof-of-work |
+| ENS | Names for addresses | Each lookup tells the RPC provider whom you are looking at. Pombo sends two decoys with each one |
+
+## Discovery
+
+- **Channels:** a listed channel says so in its stream metadata, so clients can find it through The Graph. An unlisted channel is found only by its ID.
+- **Storage:** a stream's storage nodes are in Polygon's storage registry, their URLs in each node's on-chain metadata, and their features at `GET /capabilities`.
+- **Relay:** its public key is in the push stream's metadata.
+
+<Aside title="How the official clients do it">
+The web app runs the Streamr SDK in the page. The Android app runs it in a hidden WebView. The account key passes through the WebView only when an account is created or imported; after that, a native signer answers every signing request.
+</Aside>

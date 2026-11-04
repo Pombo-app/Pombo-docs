@@ -1,0 +1,53 @@
+@font-face {
+	font-family: 'Inter';
+	font-style: normal;
+	font-weight: 400 800;
+	font-display: swap;
+	src: url('../fonts/inter-latin.woff2') format('woff2');
+}
+
+:root {
+	--sl-font: 'Inter', system-ui, sans-serif;
+	--sl-color-accent-low: #3b2210;
+	--sl-color-accent: #f6851b;
+	--sl-color-accent-high: #fcd3ad;
+	--sl-color-white: #f4f4f5;
+	--sl-color-gray-1: #e4e4e7;
+	--sl-color-gray-2: #c4c4c9;
+	--sl-color-gray-3: #8c8c94;
+	--sl-color-gray-4: #5a5a62;
+	--sl-color-gray-5: #34343a;
+	--sl-color-gray-6: #16161b;
+	--sl-color-black: #09090b;
+	--sl-color-text-accent: var(--sl-color-accent);
+	--sl-color-text-invert: #09090b;
+}
+
+:root[data-theme='light'] {
+	--sl-color-accent-low: #fde6d0;
+	--sl-color-accent: #c0600e;
+	--sl-color-accent-high: #5c2e07;
+	--sl-color-white: #09090b;
+	--sl-color-gray-1: #16161b;
+	--sl-color-gray-2: #34343a;
+	--sl-color-gray-3: #5a5a62;
+	--sl-color-gray-4: #8c8c94;
+	--sl-color-gray-5: #d4d4d8;
+	--sl-color-gray-6: #f1f1f3;
+	--sl-color-gray-7: #f8f8f9;
+	--sl-color-black: #ffffff;
+}
+
+.sl-markdown-content table {
+	font-size: 0.9375rem;
+}
+
+@media (min-width: 50rem) {
+	.hero.hero {
+		padding-block: 2rem;
+	}
+
+	.hero.hero > img {
+		width: min(100%, 16rem);
+	}
+}

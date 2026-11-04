@@ -21,3 +21,7 @@ yarn-error.log*
 
 # Local diagram sources (exported WebP lives in docs/assets/diagrams)
 /diagrams
+
+# Astro
+/dist
+.astro/

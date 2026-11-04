@@ -1,0 +1,60 @@
+---
+title: Encryption
+description: What each channel type encrypts, with which keys, and how those keys reach members.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+| Type | Key | Cipher |
+| --- | --- | --- |
+| Open | None: messages are signed, not encrypted | |
+| Protected | Derived from the password: PBKDF2-SHA256, 310,000 iterations | AES-256-GCM, fresh salt and IV per message |
+| Closed, Gated, Paid | Epoch key: 32 random bytes | AES-256-GCM |
+| Direct messages | A fresh key per message, agreed with the recipient's public key | ECDH, HKDF-SHA256, AES-256-GCM |
+
+## Protected channels
+
+- Messages, presence, reactions and the moderation state are encrypted with the password key. The channel image on `-3` may be published in the clear.
+- The owner publishes a challenge on `-3`, partition 2, that only the right password decrypts. Readers test the password against it.
+
+## Epoch keys
+
+Every encrypted message names its epoch key in the clear (`kid`: the epoch number, a dot and 12 random hex characters).
+
+| Stream | Encrypted with | Published under |
+| --- | --- | --- |
+| `-1` | Epoch key | Sealed: the shared publish key. Visible: the gate contract |
+| `-2`, `-5` | Epoch key | Sealed: the shared interactions key. Visible: the gate contract |
+| `-3` | Epoch key | The owner's account |
+| `-4` | Announces and requests in the clear; each key sealed to its recipient; roster entries with the epoch key | The gate contract |
+
+### Distribution on `-4`
+
+<Steps>
+
+1. **Announce:** the owner publishes each epoch with a hash of its key. Readers accept announces from the owner only.
+2. **Request:** a member publishes a throwaway public key and its account's public key.
+3. **Wrap:** a member holding the keys checks the requester with `checkAccess`, then seals the keys to it: ECDH, HKDF-SHA256, AES-256-GCM. Answerers rank themselves by a hash of their address and the request, and skip keys another wrap already covered.
+4. **Adopt:** the requester accepts a key only if it hashes to the announced value.
+
+</Steps>
+
+A member also publishes a roster entry on `-4`, partition 2, sealed with the current epoch key. Live messages must use the current epoch; readers accept the previous one for 10 minutes after the new one takes effect.
+
+Only the owner starts a new epoch. A member without the new key cannot read what follows it.
+
+## Shared keys in Sealed channels
+
+- **Publish key** signs `-1`. In read-only channels key holders hand it to the owner and moderators only.
+- **Interactions key** signs `-2` and `-5`. Every member receives it.
+- Each is announced with a revision; the highest wins. Replacing one means granting the new key and revoking the old one on chain.
+
+## Direct messages
+
+Each message is sealed with a fresh key: ECDH with the recipient's public key, HKDF-SHA256, AES-256-GCM. The author's proof travels inside. There is no ratchet, so there is no forward secrecy.
+
+This is deliberate: every message opens with the account key alone, so a restored backup or a second device can read the inbox's history. Retention bounds the exposure. A stolen key opens only what the inbox still stores, and the messages you sent are stored in the recipient's inbox, under their retention.
+
+<Aside title="How the official clients do it">
+The owner's app starts a new epoch weekly, at once after a ban or a removal from the allowlist, and when it notices lost access. It also seals every new epoch to the owner's own account, and announces the latest epoch again if storage lost the announces. **Rotate Now**, **Reset Publish Key** and **Reset Interactions Key** are in the channel's moderation settings.
+</Aside>

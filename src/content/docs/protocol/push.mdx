@@ -1,0 +1,40 @@
+---
+title: Push notifications
+description: How a relay wakes devices without learning who wrote to whom.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+A relay keeps a list of devices by 1-byte tag. A sender asks it to wake every device under a tag; each woken device checks storage for itself. The relay never sees content, sender or account.
+
+## Registering a device
+
+<Steps>
+
+1. The client reads the relay's public key from the push stream's metadata and checks it against the relay's known address.
+2. It seals `{type, tag, subscription, timestamp}` to that key (ECDH, HKDF-SHA256, AES-256-GCM) and publishes it on the push stream under a throwaway key.
+3. The relay opens it and files the endpoint under the tag: a Web Push subscription or an FCM token.
+
+</Steps>
+
+**Tag:** the first byte of `keccak256("channel:" + streamId)`, or `"native:"` for gated channels, with the stream ID in lowercase. With 256 tags, each is shared by many channels.
+
+## Waking devices
+
+<Steps>
+
+1. The sender publishes `{tag, pow, nonce, epoch, channelType, timestamp}` under a fresh key. The proof-of-work needs 4 leading zero hex digits over `tag:epoch:nonce`, with a 10-second epoch.
+2. The relay checks the proof, accepting one epoch either side, and wakes every device under the tag: about 1 in 256 of all registrations.
+3. Each device reads the newest message of its streams under that tag from their storage providers, and decides whether there is anything new.
+
+</Steps>
+
+`channelType` is `public` for Open, Protected and direct messages, `private` for gated channels, and `keys` for key requests.
+
+## The relay
+
+It stores tag, endpoint or FCM token, and timestamps, and keeps an event log for 30 days. A registration not refreshed for 180 days is removed, as is one whose push service rejects it; there is no unregister message. Besides the proof-of-work, the relay refuses a replayed proof and limits wakes to 20 a minute per tag. It sends Web Push with VAPID, and data-only FCM messages when configured. The public cannot subscribe to the push stream.
+
+<Aside title="How the official clients do it">
+Reads of gated streams and inboxes are signed. Android signs them itself; the web service worker holds no key, so it asks an open Pombo window to sign and stays silent when none is open. A `keys` wake never shows a notification. What each notification shows is in [Notifications](/use/notifications/).
+</Aside>

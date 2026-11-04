@@ -1,0 +1,59 @@
+---
+title: Storage
+description: Storage providers, what they keep, how they are read and erased, and what a provider can and cannot do.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+Stored streams are kept by storage providers assigned per stream on chain. `pombo-storage-node` is a Streamr storage node with checks and endpoints the plain node lacks; clients also work with plain nodes.
+
+## Finding a provider
+
+<Steps>
+
+1. Polygon's storage registry lists the node addresses assigned to a stream.
+2. Each node's on-chain metadata lists its URLs.
+3. `GET /capabilities` lists the node's features: `metadata`, `storedAt`, `purge`, `stored`, `signedReads`. A plain Streamr node answers 404.
+
+</Steps>
+
+## What is kept, and for how long
+
+- Stored: `-1`, `-3`, `-4` and `-5`, and an inbox's `DM-1`. Never `-2` or `DM-2`. See [Streams](/protocol/streams/).
+- Retention is each stream's on-chain `storageDays`; a node keeps a stream without it for 365 days. Streams of one channel can differ.
+
+## Ingest
+
+- Every message needs a valid signature, ERC-1271 included, and the publish permission. A definite refusal drops it; when the chain cannot be reached, the message is kept.
+- On the `-1` of a read-only Visible channel, only the owner's and moderators' messages are kept.
+- Permission answers are cached for 10 minutes; a gate's "no" for 20 seconds.
+- `storedAt` is the node's receive time, returned with every stored message.
+
+## Reads
+
+- **Signed reads** are required for gated streams, except `-3`, and for streams without public subscribe, such as an inbox. Headers `x-pombo-user`, `-issued-at`, `-nonce` and `-signature` carry an EIP-191 signature, issued within 5 minutes of the node's clock; each nonce is accepted once. The reader must pass the gate or hold the subscribe permission.
+- **Answers:** `401` bad signature, `403` no access, `404` unknown stream, `503` chain unreachable. While the chain is down, streams last seen as public are still served.
+
+## Erasing
+
+`POST …/purge` takes up to 100 targets on one node, each a message's timestamp and sequence number. The node honours the stream's owner, the gate's owner and moderators, and, outside Sealed channels, the message's own signer. Each target is answered `deleted`, `forbidden` or `not_found`. Other providers keep their copies.
+
+## Providers added later
+
+A provider holds only what is published after it is assigned to a stream. `POST …/stored` lets a client check which messages a node holds.
+
+## Clusters
+
+Several machines can share one node identity and one Cassandra ring. By default each machine keeps a full copy.
+
+## Trust
+
+| A provider can | A provider cannot |
+| --- | --- |
+| Omit messages or refuse reads | Forge a message: signatures are checked |
+| Misstate `storedAt` | Read encrypted content |
+| Learn which account reads a gated stream or an inbox | Erase from other providers |
+
+<Aside title="How the official clients do it">
+They drop a message dated more than 5 minutes after its `storedAt`, send each purge to every provider that supports it and report *erased on k of n*. When an owner adds a provider, the app publishes the key announces, moderation state, channel image and password challenge again, and blocks removing a provider until the others hold them.
+</Aside>

@@ -1,0 +1,25 @@
+---
+title: Pombo Docs
+description: How to use Pombo, how its protocol works, and how to run part of its infrastructure.
+template: splash
+hero:
+  tagline: A messaging app for channels and direct messages, on the web and on Android. Messages travel peer to peer, signed on your device and encrypted unless the channel is open. Ownership and permissions are records on Polygon.
+  image:
+    file: ../../assets/pombo.svg
+  actions:
+    - text: Get started
+      link: /use/get-started/
+      icon: right-arrow
+    - text: How the protocol works
+      link: /protocol/overview/
+      variant: minimal
+---
+
+import { CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<CardGrid>
+	<LinkCard title="Use Pombo clients" description="Install the apps, join channels, send direct messages, keep your account safe." href="/use/get-started/" />
+	<LinkCard title="Protocol" description="Streams, keys, storage and push: what happens on the network and on chain." href="/protocol/overview/" />
+	<LinkCard title="Operate" description="Run a storage node for your own channels or for others, or a push relay for a client of your own." href="/operators/run-a-storage-node/" />
+	<LinkCard title="Interactive protocol map" description="Every component and link, with step-by-step stories for each channel type." href="https://pombo.cc/map/" />
+</CardGrid>

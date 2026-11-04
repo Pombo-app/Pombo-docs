@@ -1,0 +1,46 @@
+---
+title: Moderation
+description: The moderation state, moderator actions and bans, and which layer enforces each.
+---
+
+Moderation works at four layers of different strength: declarations that readers apply, the gate contract, the channel keys, and storage.
+
+## Moderation state
+
+`ADMIN_STATE` is a snapshot published on `-3`, partition 0.
+
+- **Network:** only the owner can publish on `-3`.
+- **Fields:** `bannedMembers` (address and `sinceEpoch`), `hiddenMessageIds`, `pins`, `absorbedThrough`, with a revision `rev` and a timestamp `ts`.
+- **Readers:** the snapshot with the highest `(rev, ts)` is current; readers also drop one whose `createdBy` is not the owner. In gated channels it is encrypted with the epoch key. A snapshot too large for one message is sent as chunks plus a manifest.
+
+A hidden message or a banned member is a declaration. The network still delivers and stores those messages; each client decides how to render them.
+
+## Moderator actions
+
+`MOD_ACTION` messages are published on `-1`, partition 2, and signed by the moderator's account (`POMBO_MOD_V1`). Operations: `hide`, `unhide`, `ban`, `unban`.
+
+- **Readers:** an action is valid only if its signer is a moderator on the gate contract and it is newer than the snapshot's `absorbedThrough`. Actions never override the owner's snapshot.
+- The owner absorbs actions by publishing a snapshot with a later `absorbedThrough`.
+
+## Bans, by layer
+
+| Layer | Mechanism | Effect |
+| --- | --- | --- |
+| Readers | `bannedMembers` in the snapshot | A declaration; nothing is refused |
+| Contract (gated channels) | `ban(address)`, owner only | `checkAccess` and `isValidSignature` refuse the account: no new keys, and storage nodes stop accepting its Visible messages |
+| Keys (gated channels) | A new epoch | The account cannot read messages under the new key |
+| Shared keys (Sealed) | New publish or interactions key | The account cannot publish under the replaced key |
+| Storage | Signed purge | Its stored messages are deleted from providers that support it |
+
+## Who can do what
+
+| Action | Owner | Moderator | Enforced by |
+| --- | --- | --- | --- |
+| Publish the snapshot, pins included | yes | | Network |
+| Publish moderator actions | | yes | Readers |
+| Ban on the gate, appoint moderators | yes | | Contract |
+| Allow or revoke on the allowlist | yes | yes | Contract |
+| Announce a new epoch | yes | | Readers |
+| Purge stored messages | yes | yes | Storage node |
+
+How the Pombo apps apply these, and the options they offer, is in [Moderate a channel](/use/moderation/).
