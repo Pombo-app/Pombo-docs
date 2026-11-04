@@ -53,6 +53,8 @@ Only the owner starts a new epoch. A member without the new key cannot read what
 
 Each message is sealed with a fresh key: ECDH with the recipient's public key, HKDF-SHA256, AES-256-GCM. The author's proof travels inside. There is no ratchet, so there is no forward secrecy.
 
+This is deliberate: every message opens with the account key alone, so a restored backup or a second device can read the inbox's history. Retention bounds the exposure. A stolen key opens only what the inbox still stores, and the messages you sent are stored in the recipient's inbox, under their retention.
+
 <Aside title="How the official clients do it">
 The owner's app starts a new epoch weekly, at once after a ban or a removal from the allowlist, and when it notices lost access. It also seals every new epoch to the owner's own account, and announces the latest epoch again if storage lost the announces. **Rotate Now**, **Reset Publish Key** and **Reset Interactions Key** are in the channel's moderation settings.
 </Aside>
