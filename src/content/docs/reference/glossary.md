@@ -43,7 +43,7 @@ description: Terms used across these docs, each linked to the page that explains
 | Moderation state | `ADMIN_STATE`, the owner's snapshot on `-3`: bans, hidden messages, pins. [Moderation](/protocol/moderation/) |
 | Moderator | An account the owner appoints on the gate contract. It publishes moderator actions on `-1`, partition 2. |
 | Hide | A declaration in the moderation state. Pombo apps stop showing the message; it stays in storage. |
-| Ban | A declaration that hides everything an account writes in the channel; on gated channels, the gate contract also refuses it. |
+| Ban | A declaration that hides what an account writes in the channel: everything in ungated channels, and from the current epoch on in gated channels, where the gate contract also refuses it. |
 | Erase | Deleting stored messages from the providers that support it, with a signed purge. [Storage](/protocol/storage/) |
 
 ## Storage and push
