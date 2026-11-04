@@ -25,13 +25,13 @@ Pombo is a communication protocol built on Streamr and Polygon, implemented in t
 
 None of the building blocks was made for group chat. Each one needed a layer on top.
 
-| Building block | What it provides | What Pombo adds |
-| --- | --- | --- |
-| Streamr network | Signed pub/sub, without accounts | Streamr's key exchange needs the publisher online. Pombo publishes without it and members hand keys to each other on `-4` |
-| Streamr registry on Polygon | Stream ownership and per-address permissions | Every change of permissions is a transaction on the stream. Gated channels give them to a gate contract once, so access follows its allowlist, a token balance or a payment, with no change to the stream |
-| Storage nodes | History for members who were offline | `pombo-storage-node` adds checks at ingest, signed reads, purge and `storedAt` |
-| Web Push, FCM | A way to wake a device that is not running | A relay that knows whom to wake learns who talks to whom. Wakes name a 1-byte tag shared by many channels and carry a proof-of-work |
-| ENS | Names for addresses | Each lookup tells the RPC provider whom you are looking at. Pombo sends two decoys with each one |
+| Building block | What it provides | What it lacks | What Pombo adds |
+| --- | --- | --- | --- |
+| Streamr network | Signed pub/sub, without accounts | Its key exchange needs the publisher online | Members hand channel keys to each other on `-4` |
+| Streamr registry on Polygon | Stream ownership and per-address permissions | Every change of access is a transaction | Closed, Gated and Paid channels grant access once, to a gate contract. Membership then follows its allowlist, a token balance or a payment |
+| Storage nodes | History for members who were offline | No access checks on reads, no way to erase | `pombo-storage-node`: checks at ingest, signed reads, erasing, and the time each message was stored |
+| Web Push, FCM | A way to wake a device that is not running | A relay that wakes devices per channel would learn who follows what | The relay knows neither who sends nor who receives. Wakes come from a fresh key, and devices register under a 1-byte tag shared by many channels. Each wake carries a proof-of-work |
+| ENS | Names for addresses | Each lookup tells the RPC provider whose name you looked up | Two decoy lookups with each one |
 
 ## Discovery
 
