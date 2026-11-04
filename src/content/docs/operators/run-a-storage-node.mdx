@@ -75,7 +75,7 @@ Retention needs no setup: every 6 hours the node deletes what is older than each
 Pick a version from the [tags](https://github.com/Pombo-app/pombo-storage-node/tags), then, in `deploy/`:
 
 ```sh
-sed -i 's/^POMBO_NODE_TAG=.*/POMBO_NODE_TAG=v103.3.1-pombo.7/' .env
+sed -i 's/^POMBO_NODE_TAG=.*/POMBO_NODE_TAG=v103.3.1-pombo.10/' .env
 docker compose -f docker-compose.yml -f docker-compose.image.yml pull node
 docker compose -f docker-compose.yml -f docker-compose.image.yml up -d node
 ```
