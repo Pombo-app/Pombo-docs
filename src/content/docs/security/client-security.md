@@ -18,8 +18,8 @@ On the web, the rest of your account's state is encrypted with a key derived fro
 
 ## Not encrypted on the device
 
-- **Web:** the last message of each conversation, shown in the channel list; channel images; files kept for seeding; and the service worker's list of channels, with names and your The Graph key.
-- **Android:** the last message of each conversation, received images, and the ENS cache, in the app's private storage. The app does not opt out of Android's automatic backup, which can copy these files to your Google account.
+- **Web:** the last message of each conversation, shown in the channel list; channel images; files kept for seeding; the ENS cache; and the service worker's list of channels, with names and your The Graph key.
+- **Android:** the last message of each conversation, received images, channel images, file transfers and the ENS cache, in the app's private storage. The app does not opt out of Android's automatic backup, which can copy these files to your Google account.
 
 Anyone with access to your browser profile or an unlocked phone can read these.
 
@@ -32,15 +32,15 @@ The Streamr SDK runs in a hidden WebView with file access, content access and na
 
 ## Web: what the page can run
 
-- One bundle, served from the app's own origin. The content security policy allows scripts only from there, and connections and images from any HTTPS source, so you can use RPCs and storage nodes of your choice.
-- The policy is set in the page itself: the host, GitHub Pages, sends no security headers. A script stops the app from running inside another site's frame.
-- Messages are sanitized with DOMPurify. Links must be `http` or `https` and open with `noopener`; the only embeds allowed are YouTube videos, from its no-cookie domain.
+- The content security policy allows scripts only from the app's own origin, and connections and images from any HTTPS source, so you can use RPCs and storage nodes of your choice.
+- The policy is set in the page itself, because the host, GitHub Pages, cannot send custom headers. A script stops the app from running inside another site's frame.
+- Messages are sanitized with DOMPurify. Links must be `http`, `https` or `mailto` and open with `noopener`; the only embeds allowed are YouTube videos, from its no-cookie domain.
 
 ## Checks on what arrives
 
 - Every message's signature and publish permission, and each author's proof.
 - Key announces only from the channel owner, and keys only if they match the announced hash.
-- Access checks against two RPC providers; if they disagree, the app refuses and warns you.
+- Access checks against two RPC providers, and more when they disagree; an unresolved tie is refused, with a warning.
 - A direct message's recipient key must belong to the recipient's address.
 
 ## Privacy settings
