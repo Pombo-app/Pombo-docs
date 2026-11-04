@@ -7,8 +7,8 @@ import { Aside, Steps } from '@astrojs/starlight/components';
 
 The relay reads the push stream, files each device under its tag, and wakes every device under a tag when a valid wake arrives. How it works: [Push notifications](/protocol/push/).
 
-<Aside>
-Clients pin their relay: the official apps are built with the Pombo relay's address, push stream, VAPID key and Firebase project. A relay of your own serves only a client built with yours.
+<Aside type="caution">
+The official clients do not support third-party relays yet. They are built with the Pombo relay's address, push stream, VAPID key and Firebase project, so a relay of your own serves only a client built with yours.
 </Aside>
 
 ## Requirements
@@ -54,28 +54,28 @@ Clients pin their relay: the official apps are built with the Pombo relay's addr
 | `PUSH_STREAM_ID` | the Pombo push stream | The stream the relay reads |
 | `POW_DIFFICULTY` | 4 | Leading zero hex digits a wake must carry |
 | `FCM_SERVICE_ACCOUNT` | none | A path to, or the JSON of, a Firebase service account. Without it, Android devices register but are never woken |
-| `ADMIN_PORT` | 8000 | The admin API; `0` turns it off |
+| `WAKE_RATE_PER_MINUTE` | 20 | Wakes per minute per tag |
+| `REGISTRATION_TTL_DAYS` | 180 | Registrations not refreshed for this long are deleted; `0` keeps them |
+| `STATS_RETENTION_DAYS` | 30 | How long the event log is kept |
+| `ADMIN_TOKEN` | none | Bearer token for the admin API. Without it, the API is off |
+| `ADMIN_HOST`, `ADMIN_PORT` | `127.0.0.1`, 8000 | Where the admin API listens; port `0` turns it off |
 
 The push stream's owner publishes the relay's public key in the stream's metadata (`pk`), where clients read it and check it against the address they were built with.
-
-<Aside type="danger">
-The admin API has no authentication and listens on every interface. Keep its port closed to the internet, or set `ADMIN_PORT=0`.
-</Aside>
 
 ## What it keeps
 
 | | Contents | Kept until |
 | --- | --- | --- |
-| Registrations, `data/tokens.db` | Tag, Web Push subscription or FCM token, created and updated times | The push service reports the endpoint gone, or an admin deletes it |
-| Event log, same database | Registrations, wakes and failures, with their tags | Never pruned |
+| Registrations, `data/tokens.db` | Tag, Web Push subscription or FCM token, created and updated times | The push service reports the endpoint gone, it is not refreshed for 180 days, or an admin deletes it |
+| Event log, same database | Registrations, wakes and failures, with their tags | 30 days |
 | pm2 logs | Each registration and wake, with its tag | Not rotated by the relay |
 
-Clients refresh their registration every 6 hours and never unregister. `node admin-cli.js clean-expired --force` deletes registrations not refreshed for 30 days.
+Clients refresh their registration every 6 hours and never unregister.
 
 Back up `.env` and `data/tokens.db`.
 
 ## Operations
 
-- **Status:** `curl localhost:8000/admin/stats`.
-- **Delete a tag's registrations:** `curl -X DELETE localhost:8000/admin/registrations/<tag>`.
+- **Status:** `curl -H "Authorization: Bearer $ADMIN_TOKEN" localhost:8000/admin/stats`.
+- **Delete a tag's registrations:** `curl -X DELETE -H "Authorization: Bearer $ADMIN_TOKEN" localhost:8000/admin/registrations/<tag>`.
 - **Logs:** `pm2 logs`.
