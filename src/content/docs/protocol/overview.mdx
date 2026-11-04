@@ -21,6 +21,18 @@ Pombo is a communication protocol built on Streamr and Polygon, implemented in t
 | [Push relay](/protocol/push/) | Wakes devices by tag | the push stream |
 | Push services | Deliver wakes: FCM, Web Push | from the relay |
 
+## What Pombo adds
+
+None of the building blocks was made for group chat. Each one needed a layer on top.
+
+| Building block | What it provides | What Pombo adds |
+| --- | --- | --- |
+| Streamr network | Signed pub/sub, without accounts | Streamr's key exchange needs the publisher online. Pombo publishes without it and members hand keys to each other on `-4` |
+| Streamr registry on Polygon | Stream ownership and per-address permissions | Every change of permissions is a transaction on the stream. Gated channels give them to a gate contract once, so access follows its allowlist, a token balance or a payment, with no change to the stream |
+| Storage nodes | History for members who were offline | `pombo-storage-node` adds checks at ingest, signed reads, purge and `storedAt` |
+| Web Push, FCM | A way to wake a device that is not running | A relay that knows whom to wake learns who talks to whom. Wakes name a 1-byte tag shared by many channels and carry a proof-of-work |
+| ENS | Names for addresses | Each lookup tells the RPC provider whom you are looking at. Pombo sends two decoys with each one |
+
 ## Discovery
 
 - **Channels:** a listed channel says so in its stream metadata, so clients can find it through The Graph. An unlisted channel is found only by its ID.
@@ -28,5 +40,5 @@ Pombo is a communication protocol built on Streamr and Polygon, implemented in t
 - **Relay:** its public key is in the push stream's metadata.
 
 <Aside title="How the official clients do it">
-The web app runs the Streamr SDK in the page. The Android app runs it in a hidden WebView. The account key passes through the WebView only when an account is created or imported; after that, a native signer answers every signing request. Besides the components above, both contact Ethereum mainnet for ENS names and, when avatars are on, the avatar hosts.
+The web app runs the Streamr SDK in the page. The Android app runs it in a hidden WebView. The account key passes through the WebView only when an account is created or imported; after that, a native signer answers every signing request.
 </Aside>
